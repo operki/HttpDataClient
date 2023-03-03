@@ -3,50 +3,71 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
+using JetBrains.Annotations;
 
-namespace Bingo.DataMining_Utils.HttpDataClient;
+namespace Focus.Utils.Chicken.Downloaders.HttpClient;
 
-/// <summary>
-/// Обработчик HttpClient'ов, ставит стандартные хедеры маскируясь под браузер
-/// </summary>
-public class HttpDataFactory : IHttpClientFactory
+internal class HttpDataFactory : IHttpClientFactory
 {
-	public readonly HttpClient Client;
+	public readonly System.Net.Http.HttpClient Client;
 	public readonly HttpClientHandler ClientHandler;
+	[CanBeNull] public readonly Action<ByteArrayContent> ModifyContent;
+	[CanBeNull] public readonly string BaseUrl;
 
-	private readonly Action<HttpClient> modifyClient;
 	private readonly Uri baseUri;
 	private readonly int downloadTimeout;
+	private readonly Action<System.Net.Http.HttpClient> modifyClient;
 
-	public HttpDataFactory(int downloadTimeout, Uri baseUri = null, IWebProxy proxy = null, CookieContainer cookieContainer = null, Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool> certValidation = null, X509Certificate2 serverCert = null, ICredentials credentials = null, HttpClientHandler clientHandler = null, Action<HttpClient> modifyClient = null)
+	internal HttpDataFactory(HttpClientSettings settings)
 	{
-		this.baseUri = baseUri;
-		certValidation ??= serverCert == null
+		downloadTimeout = settings.DownloadTimeout;
+		modifyClient = settings.ModifyClient;
+		ModifyContent = settings.ModifyContent;
+
+		var sslValidation = settings.SslValidation ?? (settings.ServerCert == null
 			? CertValidationDefault
 			: new Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool>((_, certificate2, _, _) =>
-				certificate2.Equals(serverCert));
-		ClientHandler = clientHandler ??
-						new HttpClientHandler
-						{
-							AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-							AllowAutoRedirect = true,
-							CookieContainer = cookieContainer ?? new CookieContainer(),
-							Credentials = credentials,
-							MaxAutomaticRedirections = 3,
-							Proxy = proxy,
-							ServerCertificateCustomValidationCallback = certValidation,
-							UseProxy = proxy != null
-						};
-		this.modifyClient = modifyClient;
-		this.downloadTimeout = downloadTimeout;
+				certificate2.Equals(settings.ServerCert)));
+		ClientHandler = new HttpClientHandler
+		{
+			AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+			AllowAutoRedirect = true,
+			CookieContainer = settings.CookieContainer ?? LoadCookies(settings.CookiesPath) ?? new CookieContainer(),
+			Credentials = settings.Credentials,
+			MaxAutomaticRedirections = 3,
+			Proxy = settings.Proxy,
+			ServerCertificateCustomValidationCallback = sslValidation,
+			UseProxy = settings.Proxy != null
+		};
+		settings.ModifyClientHandler?.Invoke(ClientHandler);
+
+		baseUri = null;
+		if(settings.BaseUrl != null)
+		{
+			baseUri = GetUri(settings.BaseUrl, out var uriKind);
+			if(uriKind == UriKind.Relative)
+				throw new Exception($"Can't init HttpDataClient with '{baseUri}', need absolute path");
+
+			BaseUrl = baseUri.GetLeftPart(UriPartial.Authority);
+			if(baseUri.Scheme != Uri.UriSchemeHttps)
+			{
+				if(settings.OnlyHttps)
+					throw new Exception($"Can't init HttpDataClient with '{baseUri}', only {Uri.UriSchemeHttps} allowed with parameters");
+				if(settings.Proxy != null)
+					throw new Exception($"Can't init HttpDataClient with '{baseUri}', only {Uri.UriSchemeHttps} allowed with proxy");
+				if(baseUri.Scheme != Uri.UriSchemeHttp)
+					throw new Exception($"Can't init HttpDataClient with '{baseUri}', only {Uri.UriSchemeHttp} and {Uri.UriSchemeHttps} allowed");
+			}
+		}
+
 		Client = CreateClient(null);
 	}
 
-	public HttpClient CreateClient(string _)
+	public System.Net.Http.HttpClient CreateClient(string _)
 	{
-		var client = new HttpClient(ClientHandler)
+		var client = new System.Net.Http.HttpClient(ClientHandler)
 		{
 			BaseAddress = baseUri,
 			Timeout = TimeSpan.FromMilliseconds(downloadTimeout)
@@ -66,6 +87,33 @@ public class HttpDataFactory : IHttpClientFactory
 		client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36");
 		modifyClient?.Invoke(client);
 		return client;
+	}
+
+	internal static Uri GetUri(string url, out UriKind uriKind)
+	{
+		if(Uri.TryCreate(url, UriKind.Absolute, out var uri))
+		{
+			uriKind = UriKind.Absolute;
+			return uri;
+		}
+
+		if(Uri.TryCreate(url, UriKind.Relative, out uri))
+		{
+			uriKind = UriKind.Relative;
+			return uri;
+		}
+
+		throw new Exception($"Incorrect uri: '{url}'");
+	}
+
+	[CanBeNull]
+	private static CookieContainer LoadCookies(string cookiesPath)
+	{
+		if(cookiesPath == null || !File.Exists(cookiesPath))
+			return null;
+
+		using var stream = File.Open(cookiesPath, FileMode.Open);
+		return JsonSerializer.Deserialize<CookieContainer>(stream);
 	}
 
 	private static bool CertValidationDefault(HttpRequestMessage f, X509Certificate2 ff, X509Chain fff, SslPolicyErrors sslErrors)
