@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Linq;
 using HttpDataClient.Environment;
 using log4net;
 
