@@ -10,7 +10,7 @@ public class DataResult
 	public HttpResponseMessage ResponseMessage { get; }
 	public bool IsSuccess => ResponseMessage?.IsSuccessStatusCode ?? false;
 
-	public string? Content
+	public string Content
 	{
 		get
 		{
@@ -25,7 +25,7 @@ public class DataResult
 		}
 	}
 
-	public byte[]? Data
+	public byte[] Data
 	{
 		get
 		{

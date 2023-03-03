@@ -1,2 +1,3 @@
-HttpDataClient/obj/
-HttpDataClientExample/obj/
+**/bin/
+**/obj/
+*.nupkg

@@ -4,6 +4,9 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>operki</Authors>
+        <Description>Comfortable client for HttpClient</Description>
     </PropertyGroup>
 
     <ItemGroup>
