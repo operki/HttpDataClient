@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
-using Focus.Utils.Chicken.Helpers;
+﻿using System.Net;
+using HttpDataClient.Environment;
+using HttpDataClient.Helpers;
 
-namespace Focus.Utils.Chicken.Downloaders.HttpClient;
+namespace HttpDataClient;
 
 /// <summary>
 /// Загрузчик данных, оперирует get и post запросами
@@ -16,7 +14,7 @@ public partial class HttpDataClient
 
 	public CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
 
-	public HttpDataClient(ChickenEnvironment environment, HttpClientSettings settings = null)
+	public HttpDataClient(DefaultEnvironment environment, HttpClientSettings settings = null)
 	{
 		Environment = environment;
 		settings ??= new HttpClientSettings();
@@ -40,7 +38,7 @@ public partial class HttpDataClient
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGet(ChickenEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
+	public static DataResult JustGet(DefaultEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpClientSettings();
 		return GetAsyncInternal(environment, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -54,7 +52,7 @@ public partial class HttpDataClient
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGetSuccess(ChickenEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
+	public static DataResult JustGetSuccess(DefaultEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpClientSettings();
 		var result = GetAsyncInternal(environment, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -73,7 +71,7 @@ public partial class HttpDataClient
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustPost(ChickenEnvironment environment, string url, byte[] body, HttpClientSettings settings = null, string traceId = null)
+	public static DataResult JustPost(DefaultEnvironment environment, string url, byte[] body, HttpClientSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpClientSettings();
 		return PostAsyncInternal(environment, url, body, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();

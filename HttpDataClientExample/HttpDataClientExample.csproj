@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>HttpDataClient</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\HttpDataClient\DataResult.cs">
+        <Link>HttpDataClient\DataResult.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\Environment\DefaultEnvironment.cs">
+        <Link>HttpDataClient\Environment\DefaultEnvironment.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\Environment\DefaultMetrics.cs">
+        <Link>HttpDataClient\Environment\DefaultMetrics.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\Environment\ILogProvider.cs">
+        <Link>HttpDataClient\Environment\ILogProvider.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\Environment\IMetricProvider.cs">
+        <Link>HttpDataClient\Environment\IMetricProvider.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\Helpers\LocalHelper.cs">
+        <Link>HttpDataClient\Helpers\LocalHelper.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\Helpers\StringHelpers.cs">
+        <Link>HttpDataClient\Helpers\StringHelpers.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\HttpClientSettings.cs">
+        <Link>HttpDataClient\HttpClientSettings.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\HttpDataClient.cs">
+        <Link>HttpDataClient\HttpDataClient.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\HttpDataClientBase.cs">
+        <Link>HttpDataClient\HttpDataClientBase.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\HttpDataFactory.cs">
+        <Link>HttpDataClient\HttpDataFactory.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\IdGenerator.cs">
+        <Link>HttpDataClient\IdGenerator.cs</Link>
+      </Compile>
+      <Compile Include="..\HttpDataClient\StreamResult.cs">
+        <Link>HttpDataClient\StreamResult.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+      <PackageReference Include="log4net" Version="2.0.15" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    </ItemGroup>
+
+</Project>

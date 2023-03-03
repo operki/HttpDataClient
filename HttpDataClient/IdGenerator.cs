@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
-namespace Focus.Utils.Chicken.Downloaders.HttpClient;
+namespace HttpDataClient;
 
 public static class IdGenerator
 {

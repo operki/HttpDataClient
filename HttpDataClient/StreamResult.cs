@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-
-namespace Focus.Utils.Chicken.Downloaders.HttpClient;
+﻿namespace HttpDataClient;
 
 public class HttpStreamResult : IDisposable
 {

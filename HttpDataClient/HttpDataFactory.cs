@@ -1,13 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using JetBrains.Annotations;
 
-namespace Focus.Utils.Chicken.Downloaders.HttpClient;
+namespace HttpDataClient;
 
 internal class HttpDataFactory : IHttpClientFactory
 {

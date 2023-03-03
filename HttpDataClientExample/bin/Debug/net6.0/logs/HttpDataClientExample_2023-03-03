@@ -1,0 +1,12 @@
+﻿[Start of logging]
+03.03.2023 16:09:32.457 FATAL    1 test 
+03.03.2023 16:09:34.507 INFO     8 [JF0py7E4] Get 'wp-content/uploads/2017/10/file_example_JPG_500kB.jpg' (200 OK): result length 1222, elapsed 00:00:00.6997521 
+[Start of logging]
+03.03.2023 16:10:20.218 FATAL    1 test 
+03.03.2023 16:10:21.812 INFO     9 [0HVBHZrY] Get 'wp-content/uploads/2017/10/file_example_JPG_500kB.jpg' (200 OK): result length 1222, elapsed 00:00:00.4293613 
+[End of logging]
+
+[Start of logging]
+03.03.2023 16:12:00.359 INFO    10 [UegRjlCS] Get '/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png' (200 OK): result length 3643, elapsed 00:00:00.3297142 
+[End of logging]
+
