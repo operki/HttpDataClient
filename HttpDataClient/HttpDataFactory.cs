@@ -2,7 +2,6 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
-using JetBrains.Annotations;
 
 namespace HttpDataClient;
 
@@ -10,8 +9,8 @@ internal class HttpDataFactory : IHttpClientFactory
 {
 	public readonly System.Net.Http.HttpClient Client;
 	public readonly HttpClientHandler ClientHandler;
-	[CanBeNull] public readonly Action<ByteArrayContent> ModifyContent;
-	[CanBeNull] public readonly string BaseUrl;
+	public readonly Action<ByteArrayContent> ModifyContent;
+	public readonly string BaseUrl;
 
 	private readonly Uri baseUri;
 	private readonly int downloadTimeout;
@@ -103,7 +102,6 @@ internal class HttpDataFactory : IHttpClientFactory
 		throw new Exception($"Incorrect uri: '{url}'");
 	}
 
-	[CanBeNull]
 	private static CookieContainer LoadCookies(string cookiesPath)
 	{
 		if(cookiesPath == null || !File.Exists(cookiesPath))

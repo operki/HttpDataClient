@@ -1,27 +1,28 @@
 ﻿using System.Collections.Concurrent;
 using HttpDataClient.Environment;
-using HttpDataClient.Helpers;
 using log4net;
 
-namespace HttpDataClient.Log4NetProviders;
+namespace HttpDataClientExample.Log4NetProviders;
 
 public class MetricProvider : IMetricProvider
 {
-    private ILog logger;
+    private readonly ILog logger;
 
     public MetricProvider(ILog logger)
     {
-        this.logger = logger;}
+        this.logger = logger;
+    }
+
     private readonly ConcurrentDictionary<string, long> metricsStorage = new();
 
     public void Inc(DefaultMetrics key)
     {
-        Inc(key.ToString().ToLowerFirstChar());
+        Inc(ToLowerFirstChar(key.ToString()));
     }
 
     public void Add(DefaultMetrics key, long addValue)
     {
-        Add(key.ToString().ToLowerFirstChar(), addValue);
+        Add(ToLowerFirstChar(key.ToString()), addValue);
     }
 
     public void Inc(string key)
@@ -39,5 +40,12 @@ public class MetricProvider : IMetricProvider
         foreach(var key in metricsStorage.Keys.OrderBy(key => key))
             if(metricsStorage.TryRemove(key, out var value))
                 logger.Info($"DELTA {key} {value}");
+    }
+
+    private static string ToLowerFirstChar(string str)
+    {
+        return string.IsNullOrEmpty(str)
+            ? str
+            : char.ToLowerInvariant(str[0]) + str[1..];
     }
 }

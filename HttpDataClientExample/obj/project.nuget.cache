@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "wlx5ZzDfgEJXPyY52NNg5EIwXdze3YjM/B4gF91QYSgc6kVWJ5Y9qX4RDEcGcXwkVzk9X5n32LfruB6CkGqNdg==",
+  "dgSpecHash": "PQnhckrT2g6Qe4xDd3RZlTQiUm5ioe10VAT54BLGi4hKilufTxEo2IdAPucJ+hqAD0Tnli1K/HU2j+Rdd7N6Mw==",
   "success": true,
   "projectFilePath": "D:\\Repositories\\HttpDataClient\\HttpDataClientExample\\HttpDataClientExample.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\alexey.popov\\.nuget\\packages\\jetbrains.annotations\\2022.3.1\\jetbrains.annotations.2022.3.1.nupkg.sha512",
     "C:\\Users\\alexey.popov\\.nuget\\packages\\log4net\\2.0.15\\log4net.2.0.15.nupkg.sha512",
     "C:\\Users\\alexey.popov\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\7.0.0\\microsoft.extensions.dependencyinjection.7.0.0.nupkg.sha512",
     "C:\\Users\\alexey.popov\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\7.0.0\\microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",

@@ -1,7 +1,7 @@
 ﻿using HttpDataClient.Environment;
 using log4net;
 
-namespace HttpDataClient.Log4NetProviders;
+namespace HttpDataClientExample.Log4NetProviders;
 
 public class LogProvider : ILogProvider
 {

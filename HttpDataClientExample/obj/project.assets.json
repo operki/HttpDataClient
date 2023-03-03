@@ -2,19 +2,6 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "JetBrains.Annotations/2022.3.1": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/JetBrains.Annotations.dll": {
-            "related": ".deps.json;.xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/JetBrains.Annotations.dll": {
-            "related": ".deps.json;.xml"
-          }
-        }
-      },
       "log4net/2.0.15": {
         "type": "package",
         "dependencies": {
@@ -280,32 +267,23 @@
             "rid": "win"
           }
         }
+      },
+      "HttpDataClient/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "Microsoft.Extensions.Http": "7.0.0"
+        },
+        "compile": {
+          "bin/placeholder/HttpDataClient.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/HttpDataClient.dll": {}
+        }
       }
     }
   },
   "libraries": {
-    "JetBrains.Annotations/2022.3.1": {
-      "sha512": "11nsS3+lFICGkztVs9PP2NRItxf9fF+qD6xEW/T0YGto52zj07wseUeBdMAU1ah9HNVTDZyRC1u4NWdtJScwhw==",
-      "type": "package",
-      "path": "jetbrains.annotations/2022.3.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "icon.png",
-        "jetbrains.annotations.2022.3.1.nupkg.sha512",
-        "jetbrains.annotations.nuspec",
-        "lib/net20/JetBrains.Annotations.dll",
-        "lib/net20/JetBrains.Annotations.xml",
-        "lib/netstandard1.0/JetBrains.Annotations.deps.json",
-        "lib/netstandard1.0/JetBrains.Annotations.dll",
-        "lib/netstandard1.0/JetBrains.Annotations.xml",
-        "lib/netstandard2.0/JetBrains.Annotations.deps.json",
-        "lib/netstandard2.0/JetBrains.Annotations.dll",
-        "lib/netstandard2.0/JetBrains.Annotations.xml",
-        "lib/portable40-net40+sl5+win8+wp8+wpa81/JetBrains.Annotations.dll",
-        "lib/portable40-net40+sl5+win8+wp8+wpa81/JetBrains.Annotations.xml"
-      ]
-    },
     "log4net/2.0.15": {
       "sha512": "GahnO9ZgFka+xYcFwAfIFjW+k86P2nxFoaEpH6t3v4hiGj7tv2ksVZphxCVIHmJxoySS0HeU3dgCW+bSCcfD0A==",
       "type": "package",
@@ -781,11 +759,16 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "HttpDataClient/1.0.0": {
+      "type": "project",
+      "path": "../HttpDataClient/HttpDataClient.csproj",
+      "msbuildProject": "../HttpDataClient/HttpDataClient.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "JetBrains.Annotations >= 2022.3.1",
+      "HttpDataClient >= 1.0.0",
       "Microsoft.Extensions.Http >= 7.0.0",
       "log4net >= 2.0.15"
     ]
@@ -822,7 +805,11 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "D:\\Repositories\\HttpDataClient\\HttpDataClient\\HttpDataClient.csproj": {
+              "projectPath": "D:\\Repositories\\HttpDataClient\\HttpDataClient\\HttpDataClient.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -835,10 +822,6 @@
       "net6.0": {
         "targetAlias": "net6.0",
         "dependencies": {
-          "JetBrains.Annotations": {
-            "target": "Package",
-            "version": "[2022.3.1, )"
-          },
           "Microsoft.Extensions.Http": {
             "target": "Package",
             "version": "[7.0.0, )"

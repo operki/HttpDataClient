@@ -1,6 +1,6 @@
 ﻿using HttpDataClient;
 using HttpDataClient.Environment;
-using HttpDataClient.Log4NetProviders;
+using HttpDataClientExample.Log4NetProviders;
 using log4net;
 using log4net.Config;
 
