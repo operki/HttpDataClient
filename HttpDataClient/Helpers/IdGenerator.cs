@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace HttpDataClient;
+namespace HttpDataClient.Helpers;
 
 public static class IdGenerator
 {

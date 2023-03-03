@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient;
+﻿namespace HttpDataClient.Results;
 
 public class DataResult
 {

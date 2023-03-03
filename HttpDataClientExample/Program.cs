@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using HttpDataClient;
+﻿using HttpDataClient;
 using HttpDataClient.Environment;
 using HttpDataClientExample.Log4NetProviders;
 using log4net;

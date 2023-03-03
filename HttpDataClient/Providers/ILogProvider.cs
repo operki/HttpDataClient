@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Environment;
+﻿namespace HttpDataClient.Providers;
 
 public interface ILogProvider
 {

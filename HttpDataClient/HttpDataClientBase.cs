@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using HttpDataClient.Environment;
 using HttpDataClient.Helpers;
+using HttpDataClient.Results;
 
 namespace HttpDataClient;
 
@@ -157,7 +158,7 @@ public partial class HttpDataClient
 
 	private static string GetFileName(DownloadStrategyFileName strategyFileName, string url, string fileName)
 	{
-		if(fileName.IsSignificant())
+		if(!string.IsNullOrWhiteSpace(fileName))
 			return Path.Combine(TempDir, LocalHelper.GetSafeFileName(fileName));
 
 		return strategyFileName switch
@@ -184,7 +185,7 @@ public partial class HttpDataClient
 					break;
 
 				Exception exception = null;
-				environment.MetricProvider.Add(DefaultMetrics.UrlTotalRequests, 1);
+				environment.MetricProvider.Add(ToLowerFirstChar(DownloadMetrics.UrlTotalRequests.ToString()), 1);
 				Thread.Sleep(sleepTime);
 				var sw = Stopwatch.StartNew();
 				try
@@ -197,7 +198,7 @@ public partial class HttpDataClient
 					}
 					else
 					{
-						environment.MetricProvider.Add(DefaultMetrics.UrlGoodRequests, 1);
+						environment.MetricProvider.Add(ToLowerFirstChar(DownloadMetrics.UrlGoodRequests.ToString()), 1);
 						return (GetResult.Success, response, sw.Elapsed);
 					}
 				}
@@ -211,7 +212,7 @@ public partial class HttpDataClient
 					sw.Stop();
 					if(exception != null)
 					{
-						environment.MetricProvider.Add(DefaultMetrics.UrlBadRequests, 1);
+						environment.MetricProvider.Add(ToLowerFirstChar(DownloadMetrics.UrlBadRequests.ToString()), 1);
 						if(stopDownload != null && stopDownload.Invoke(exception))
 						{
 							getResult = GetResult.StopException;
@@ -255,5 +256,12 @@ public partial class HttpDataClient
 		{
 			throw new Exception($"Can't get request with '{url}', only site '{baseSite}' allowed");
 		}
+	}
+
+	private static string ToLowerFirstChar(string str)
+	{
+		return string.IsNullOrEmpty(str)
+			? str
+			: char.ToLowerInvariant(str[0]) + str.Substring(1);
 	}
 }

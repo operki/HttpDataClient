@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using HttpDataClient.Environment;
 using HttpDataClient.Helpers;
+using HttpDataClient.Results;
 
 namespace HttpDataClient;
 

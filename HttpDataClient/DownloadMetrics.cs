@@ -1,6 +1,6 @@
-﻿namespace HttpDataClient.Environment;
+﻿namespace HttpDataClient;
 
-public enum DefaultMetrics
+public enum DownloadMetrics
 {
     UrlBadRequests,
     UrlGoodRequests,
