@@ -2,13 +2,13 @@
 using EnvironmentUtils.Providers;
 using log4net;
 
-namespace HttpDataClientExample.Log4NetProviders;
+namespace EnvironmentUtils.Log4NetProviders;
 
-public class MetricProvider : IMetricProvider
+public class Log4NetMetricProvider : IMetricProvider
 {
     private readonly ILog logger;
 
-    public MetricProvider(ILog logger)
+    public Log4NetMetricProvider(ILog logger)
     {
         this.logger = logger;
     }
@@ -36,6 +36,6 @@ public class MetricProvider : IMetricProvider
     {
         return string.IsNullOrEmpty(str)
             ? str
-            : char.ToLowerInvariant(str[0]) + str[1..];
+            : char.ToLowerInvariant(str[0]) + str.Substring(1);
     }
 }

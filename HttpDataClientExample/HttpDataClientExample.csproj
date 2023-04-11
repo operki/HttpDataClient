@@ -10,7 +10,6 @@
 
     <ItemGroup>
       <PackageReference Include="HttpDataClient" Version="1.0.0" />
-      <PackageReference Include="log4net" Version="2.0.15" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     </ItemGroup>
 

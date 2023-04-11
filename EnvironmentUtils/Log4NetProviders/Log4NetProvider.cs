@@ -1,14 +1,13 @@
-﻿using System;
-using EnvironmentUtils.Providers;
+﻿using EnvironmentUtils.Providers;
 using log4net;
 
-namespace HttpDataClientExample.Log4NetProviders;
+namespace EnvironmentUtils.Log4NetProviders;
 
-public class LogProvider : ILogProvider
+public class Log4NetProvider : ILogProvider
 {
     private readonly ILog logger;
     
-    public LogProvider(ILog logger)
+    public Log4NetProvider(ILog logger)
     {
         this.logger = logger;
     }

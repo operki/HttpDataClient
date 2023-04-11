@@ -1,6 +1,6 @@
 ﻿using EnvironmentUtils.Environment;
+using EnvironmentUtils.Log4NetProviders;
 using HttpDataClient;
-using HttpDataClientExample.Log4NetProviders;
 using log4net;
 using log4net.Config;
 
@@ -8,7 +8,7 @@ Console.WriteLine("Hello, World!");
 
 XmlConfigurator.Configure();
 var logger = LogManager.GetLogger("root");
-var environment = new DefaultEnvironment(new LogProvider(logger), new MetricProvider(logger));
+var environment = new DefaultEnvironment(new Log4NetProvider(logger), new Log4NetMetricProvider(logger));
 
 var httpDataClient = new HttpDataClient.HttpDataClient(environment, new HttpClientSettings { BaseUrl = "https://www.google.com" });
 var downloadResult = httpDataClient.GetSuccess("/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png");
