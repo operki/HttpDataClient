@@ -1,12 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace HttpDataClient.Helpers;
+namespace EnvironmentUtils.Helpers;
 
-internal static class LocalHelper
+public static class LocalHelper
 {
     private static readonly Regex RemoveInvalidRegex = new Regex($"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))}]");
 
-    internal static void TryClearDir(string dir, int? skipFiles = null)
+    public static void TryClearDir(string dir, int? skipFiles = null)
     {
         try
         {
@@ -40,7 +40,7 @@ internal static class LocalHelper
     /// </summary>
     /// <param name="fileName">Файл для изменения</param>
     /// <returns>Файл для локального сохранения</returns>
-    internal static string GetSafeFileName(string fileName)
+    public static string GetSafeFileName(string fileName)
     {
         return RemoveInvalidRegex.Replace(Path.GetFileName(fileName), "");
     }

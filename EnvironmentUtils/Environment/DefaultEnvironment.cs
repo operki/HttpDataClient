@@ -1,6 +1,6 @@
-﻿using HttpDataClient.Providers;
+﻿using EnvironmentUtils.Providers;
 
-namespace HttpDataClient.Environment;
+namespace EnvironmentUtils.Environment;
 
 public class DefaultEnvironment
 {

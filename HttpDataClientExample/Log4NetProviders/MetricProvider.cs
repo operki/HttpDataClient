@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using HttpDataClient;
-using HttpDataClient.Providers;
+using EnvironmentUtils.Providers;
 using log4net;
 
 namespace HttpDataClientExample.Log4NetProviders;
@@ -15,16 +14,6 @@ public class MetricProvider : IMetricProvider
     }
 
     private readonly ConcurrentDictionary<string, long> metricsStorage = new();
-
-    public void Inc(DownloadMetrics key)
-    {
-        Inc(ToLowerFirstChar(key.ToString()));
-    }
-
-    public void Add(DownloadMetrics key, long addValue)
-    {
-        Add(ToLowerFirstChar(key.ToString()), addValue);
-    }
 
     public void Inc(string key)
     {

@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using HttpDataClient.Environment;
-using HttpDataClient.Helpers;
+using EnvironmentUtils.Environment;
+using EnvironmentUtils.Helpers;
 using HttpDataClient.Results;
 
 namespace HttpDataClient;
