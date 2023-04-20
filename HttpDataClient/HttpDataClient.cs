@@ -15,7 +15,7 @@ public partial class HttpDataClient
 
 	public CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
 
-	public HttpDataClient(DefaultEnvironment environment, HttpClientSettings settings = null)
+	public HttpDataClient(TrackEnvironment environment, HttpClientSettings settings = null)
 	{
 		Environment = environment;
 		settings ??= new HttpClientSettings();
@@ -39,7 +39,7 @@ public partial class HttpDataClient
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGet(DefaultEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
+	public static DataResult JustGet(TrackEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpClientSettings();
 		return GetAsyncInternal(environment, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -53,7 +53,7 @@ public partial class HttpDataClient
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGetSuccess(DefaultEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
+	public static DataResult JustGetSuccess(TrackEnvironment environment, string url, HttpClientSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpClientSettings();
 		var result = GetAsyncInternal(environment, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -72,7 +72,7 @@ public partial class HttpDataClient
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustPost(DefaultEnvironment environment, string url, byte[] body, HttpClientSettings settings = null, string traceId = null)
+	public static DataResult JustPost(TrackEnvironment environment, string url, byte[] body, HttpClientSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpClientSettings();
 		return PostAsyncInternal(environment, url, body, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();

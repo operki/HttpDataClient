@@ -17,7 +17,7 @@ public partial class HttpDataClient
 	private readonly bool onlyHttps;
 	private readonly DownloadStrategyFileName strategyFileName;
 	private readonly string cookiesPath;
-	private readonly DefaultEnvironment Environment;
+	private readonly TrackEnvironment Environment;
 
 	private enum GetResult
 	{
@@ -41,7 +41,7 @@ public partial class HttpDataClient
 		JsonSerializer.Serialize(outStream, httpDataFactory.ClientHandler.CookieContainer);
 	}
 
-	private static async Task<DataResult> GetAsyncInternal(DefaultEnvironment environment, string url, string traceId, HttpDataFactory httpDataFactory, bool onlyHttps = true, int preLoadTimeout = HttpClientSettings.PreLoadTimeoutDefault, int retriesCount = HttpClientSettings.RetriesCountDefault)
+	private static async Task<DataResult> GetAsyncInternal(TrackEnvironment environment, string url, string traceId, HttpDataFactory httpDataFactory, bool onlyHttps = true, int preLoadTimeout = HttpClientSettings.PreLoadTimeoutDefault, int retriesCount = HttpClientSettings.RetriesCountDefault)
 	{
 		var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
 		var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(environment, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead), tracePrefix, httpDataFactory.BaseUrl, url, onlyHttps, preLoadTimeout, retriesCount, null);
@@ -62,7 +62,7 @@ public partial class HttpDataClient
 		return result;
 	}
 
-	private static async Task<DataResult> PostAsyncInternal(DefaultEnvironment environment, string url, byte[] body, string traceId, HttpDataFactory httpDataFactory, bool onlyHttps = true, int preLoadTimeout = HttpClientSettings.PreLoadTimeoutDefault, int retriesCount = HttpClientSettings.RetriesCountDefault)
+	private static async Task<DataResult> PostAsyncInternal(TrackEnvironment environment, string url, byte[] body, string traceId, HttpDataFactory httpDataFactory, bool onlyHttps = true, int preLoadTimeout = HttpClientSettings.PreLoadTimeoutDefault, int retriesCount = HttpClientSettings.RetriesCountDefault)
 	{
 		var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
 		var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(environment, () =>
@@ -93,7 +93,7 @@ public partial class HttpDataClient
 		return await GetStreamAsyncInternal(Environment, url, traceId, httpDataFactory, strategyFileName, fileName, httpDataFactory.BaseUrl, onlyHttps, PreLoadTimeout, RetriesCount);
 	}
 
-	private static async Task<HttpStreamResult> GetStreamAsyncInternal(DefaultEnvironment environment, string url, string traceId, HttpDataFactory httpDataFactory, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string fileName = null, string site = null, bool onlyHttps = true, int preLoadTimeout = HttpClientSettings.PreLoadTimeoutDefault, int retriesCount = HttpClientSettings.RetriesCountDefault)
+	private static async Task<HttpStreamResult> GetStreamAsyncInternal(TrackEnvironment environment, string url, string traceId, HttpDataFactory httpDataFactory, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string fileName = null, string site = null, bool onlyHttps = true, int preLoadTimeout = HttpClientSettings.PreLoadTimeoutDefault, int retriesCount = HttpClientSettings.RetriesCountDefault)
 	{
 		var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
 		var tmpFileName = GetFileName(strategyFileName, url, fileName);
@@ -170,7 +170,7 @@ public partial class HttpDataClient
 		};
 	}
 
-	private static async Task<(GetResult, HttpResponseMessage, TimeSpan?)> GetWithRetriesInternalAsync(DefaultEnvironment environment, Func<Task<HttpResponseMessage>> httpGetter, string tracePrefix, string baseSite, string url, bool onlyHttps, int preLoadTimeout, int retriesCount, Func<Exception, bool> stopDownload)
+	private static async Task<(GetResult, HttpResponseMessage, TimeSpan?)> GetWithRetriesInternalAsync(TrackEnvironment environment, Func<Task<HttpResponseMessage>> httpGetter, string tracePrefix, string baseSite, string url, bool onlyHttps, int preLoadTimeout, int retriesCount, Func<Exception, bool> stopDownload)
 	{
 		Directory.CreateDirectory(TempDir);
 		HttpResponseMessage response = null;
@@ -185,7 +185,7 @@ public partial class HttpDataClient
 					break;
 
 				Exception exception = null;
-				environment.MetricProvider.Add(ToLowerFirstChar(DownloadMetrics.UrlTotalRequests.ToString()), 1);
+				environment.Metrics.Add(ToLowerFirstChar(HttpClientMetrics.UrlTotalRequests.ToString()), 1);
 				Thread.Sleep(sleepTime);
 				var sw = Stopwatch.StartNew();
 				try
@@ -198,7 +198,7 @@ public partial class HttpDataClient
 					}
 					else
 					{
-						environment.MetricProvider.Add(ToLowerFirstChar(DownloadMetrics.UrlGoodRequests.ToString()), 1);
+						environment.Metrics.Add(ToLowerFirstChar(HttpClientMetrics.UrlGoodRequests.ToString()), 1);
 						return (GetResult.Success, response, sw.Elapsed);
 					}
 				}
@@ -212,16 +212,16 @@ public partial class HttpDataClient
 					sw.Stop();
 					if(exception != null)
 					{
-						environment.MetricProvider.Add(ToLowerFirstChar(DownloadMetrics.UrlBadRequests.ToString()), 1);
+						environment.Metrics.Add(ToLowerFirstChar(HttpClientMetrics.UrlBadRequests.ToString()), 1);
 						if(stopDownload != null && stopDownload.Invoke(exception))
 						{
 							getResult = GetResult.StopException;
-							environment.Log.Info(exception, $"{tracePrefix}Stop '{url}': elapsed {sw.Elapsed}");
+							environment.Log.Info($"{tracePrefix}Stop '{url}': elapsed {sw.Elapsed}", exception);
 						}
 						else
 						{
 							sleepTime = preLoadTimeout * ((i > RetriesStopGrowing ? RetriesStopGrowing : i) + 2);
-							environment.Log.Error(exception, $"{tracePrefix}Failed '{url}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds");
+							environment.Log.Error($"{tracePrefix}Failed '{url}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
 						}
 					}
 				}
@@ -231,7 +231,7 @@ public partial class HttpDataClient
 		}
 		catch(Exception e)
 		{
-			environment.Log.Fatal(e, $"{tracePrefix}Failed '{url}'");
+			environment.Log.Fatal($"{tracePrefix}Failed '{url}'", e);
 			return (GetResult.Fail, response, null);
 		}
 	}

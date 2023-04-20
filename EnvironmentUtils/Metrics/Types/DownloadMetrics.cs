@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient;
+﻿namespace EnvironmentUtils.Metrics.Types;
 
 public enum DownloadMetrics
 {
@@ -6,4 +6,3 @@ public enum DownloadMetrics
     UrlGoodRequests,
     UrlTotalRequests
 }
-
