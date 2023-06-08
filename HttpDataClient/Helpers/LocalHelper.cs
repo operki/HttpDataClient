@@ -4,7 +4,7 @@ namespace HttpDataClient.Helpers;
 
 internal static class LocalHelper
 {
-    private static readonly Regex RemoveInvalidRegex = new Regex($"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))}]");
+    private static readonly Regex RemoveInvalidRegex = new($"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))}]");
 
     public static void TryClearDir(string dir, int? skipFiles = null)
     {
@@ -21,11 +21,9 @@ internal static class LocalHelper
                 foreach(var file in dirFiles)
                     File.Delete(file);
             else
-            {
                 foreach(var file in dirFiles.OrderByDescending(file => file)
                             .Skip(skipFiles.Value))
                     File.Delete(file);
-            }
         }
         catch(UnauthorizedAccessException) { }
         catch(IOException) { }
@@ -36,7 +34,7 @@ internal static class LocalHelper
     }
 
     /// <summary>
-    /// Убирает из файла непечатаемые символы для локального сохранения
+    ///     Убирает из файла непечатаемые символы для локального сохранения
     /// </summary>
     /// <param name="fileName">Файл для изменения</param>
     /// <returns>Файл для локального сохранения</returns>

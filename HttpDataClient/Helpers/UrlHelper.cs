@@ -4,6 +4,15 @@ namespace HttpDataClient.Helpers;
 
 internal static class UrlHelper
 {
+    private static readonly List<string> SecretParams = new()
+    {
+        "key",
+        "token",
+        "secret",
+        "pass",
+        "pswd"
+    };
+
     public static string GetHost(string url)
     {
         return IsCorrectUrl(url)
@@ -42,13 +51,4 @@ internal static class UrlHelper
             ? throw new Exception($"Impossible url: '{url}'")
             : $"{leftPart}{queryParams}";
     }
-
-    private static readonly List<string> SecretParams = new()
-    {
-        "key",
-        "token",
-        "secret",
-        "pass",
-        "pswd"
-    };
 }

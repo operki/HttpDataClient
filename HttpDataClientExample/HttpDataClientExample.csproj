@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="HttpDataClient" Version="1.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+        <PackageReference Include="HttpDataClient" Version="1.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\HttpDataClient\HttpDataClient.csproj" />
+        <ProjectReference Include="..\HttpDataClient\HttpDataClient.csproj"/>
     </ItemGroup>
 
 </Project>
