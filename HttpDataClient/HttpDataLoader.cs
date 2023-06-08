@@ -10,25 +10,20 @@ namespace HttpDataClient;
 /// </summary>
 public partial class HttpDataLoader
 {
-	public int PreLoadTimeout { get; set; }
-	public int RetriesCount { get; set; }
-
-	public CookieContainer CookieContainer => httpClientFactory.ClientHandler.CookieContainer;
+	public CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
 
 	public HttpDataLoader(TrackEnvironment environment, HttpDataLoaderSettings settings = null)
 	{
 		this.environment = environment;
-		settings ??= new HttpDataLoaderSettings();
-		onlyHttps = settings.OnlyHttps || settings.Proxy != null;
-		strategyFileName = settings.StrategyFileName;
+		this.settings = settings ?? new HttpDataLoaderSettings();
+		onlyHttps = this.settings.OnlyHttps || this.settings.Proxy != null;
+		strategyFileName = this.settings.StrategyFileName;
 		LocalHelper.TryClearDir(TempDir, strategyFileName == DownloadStrategyFileName.Random
 			? 0
 			: SkipFilesWhenClear);
 
-		PreLoadTimeout = settings.PreLoadTimeout;
-		RetriesCount = settings.RetriesCount;
-		cookiesPath = settings.CookiesPath;
-		httpClientFactory = new HttpClientFactory(settings);
+		cookiesPath = this.settings.CookiesPath;
+		httpDataFactory = new HttpDataFactory(this.settings);
 	}
 
 	/// <summary>
@@ -36,13 +31,13 @@ public partial class HttpDataLoader
 	/// </summary>
 	/// <param name="environment">Окружение курочки</param>
 	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
-	/// <param name="settings">Настройки для HttpClientFactory</param>
+	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
 	public static DataResult JustGet(TrackEnvironment environment, string url, HttpDataLoaderSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpDataLoaderSettings();
-		return GetAsyncInternal(environment, url, traceId, new HttpClientFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
+		return GetAsyncInternal(environment, null, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
 	}
 
 	/// <summary>
@@ -50,13 +45,13 @@ public partial class HttpDataLoader
 	/// </summary>
 	/// <param name="environment">Окружение курочки</param>
 	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
-	/// <param name="settings">Настройки для HttpClientFactory</param>
+	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
 	public static DataResult JustGetSuccess(TrackEnvironment environment, string url, HttpDataLoaderSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpDataLoaderSettings();
-		var result = GetAsyncInternal(environment, url, traceId, new HttpClientFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
+		var result = GetAsyncInternal(environment, null, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
 		if(!result.IsSuccess)
 			throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
 
@@ -69,13 +64,13 @@ public partial class HttpDataLoader
 	/// <param name="environment">Окружение курочки</param>
 	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
 	/// <param name="body">Тело запроса</param>
-	/// <param name="settings">Настройки для HttpClientFactory</param>
+	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
 	public static DataResult JustPost(TrackEnvironment environment, string url, byte[] body, HttpDataLoaderSettings settings = null, string traceId = null)
 	{
 		settings ??= new HttpDataLoaderSettings();
-		return PostAsyncInternal(environment, url, body, traceId, new HttpClientFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
+		return PostAsyncInternal(environment, null, url, body, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
 	}
 
 	/// <summary>
@@ -112,7 +107,7 @@ public partial class HttpDataLoader
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> GetAsync(string url, string traceId = null)
 	{
-		return await GetAsyncInternal(environment, url, traceId, httpClientFactory, onlyHttps, PreLoadTimeout, RetriesCount);
+		return await GetAsyncInternal(environment, settings.LoadStatCalc, url, traceId, httpDataFactory, onlyHttps, settings.PreLoadTimeout, settings.RetriesCount);
 	}
 
 	/// <summary>
@@ -152,7 +147,7 @@ public partial class HttpDataLoader
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string traceId = null)
 	{
-		return await PostAsyncInternal(environment, url, body, traceId, httpClientFactory, onlyHttps, PreLoadTimeout, RetriesCount);
+		return await PostAsyncInternal(environment, settings.LoadStatCalc, url, body, traceId, httpDataFactory, onlyHttps, settings.PreLoadTimeout, settings.RetriesCount);
 	}
 
 	/// <summary>

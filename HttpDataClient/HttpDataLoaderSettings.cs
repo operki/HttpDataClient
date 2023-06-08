@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using HttpDataClient.Environment;
+using HttpDataClient.LoadStat;
 
 namespace HttpDataClient;
 
@@ -19,8 +21,10 @@ public class HttpDataLoaderSettings
 	public const int DownloadTimeoutDefault = 1_000 * 60 * 15;
 	public const int PreLoadTimeoutDefault = 1_000;
 	public const int RetriesCountDefault = 5;
+	private string baseUrl;
+	private readonly TrackEnvironment environment;
 
-	public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings)
+	public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings, TrackEnvironment environment = null)
 	{
 		if(settings.ContainsKey("baseUrl"))
 			BaseUrl = settings["baseUrl"];
@@ -34,12 +38,32 @@ public class HttpDataLoaderSettings
 			RetriesCount = int.Parse(settings["retriesCount"]);
 	}
 
+	public HttpDataLoaderSettings(TrackEnvironment environment = null)
+	{
+		this.environment = environment;
+	}
+
 	public HttpDataLoaderSettings() { }
 
+
 	/// <summary>
-	/// Добавляет префикс к запросам с  относительными путями. Если указан то при попытке скачивания данных по урлу с отличающимся хостом будет бросать Exception 
+	///     Добавляет префикс к запросам с  относительными путями. Если указан то при попытке скачивания данных по урлу с отличающимся хостом будет бросать Exception
 	/// </summary>
-	public string BaseUrl { get; set; } = null;
+	public string BaseUrl
+	{
+		get => baseUrl;
+		set
+		{
+			baseUrl = value;
+			if(environment != null)
+				LoadStatCalc = new LoadStatCalc(environment, baseUrl);
+		}
+	}
+
+	/// <summary>
+	///     Подсчет статистики загрузки источника, если указан BaseUrl
+	/// </summary>
+	public LoadStatCalc LoadStatCalc { get; set; }
 
 	/// <summary>
 	/// Стратегия именования файла при скачивании на диск через методы, возвращающие HttpStreamResult
@@ -59,6 +83,12 @@ public class HttpDataLoaderSettings
 	/// </summary>
 	public IWebProxy Proxy { get; set; } = null;
 	public int DownloadTimeout { get; set; } = DownloadTimeoutDefault;
+
+	/// <summary>
+	///     true - использовать стандартные надстройки над HttpClient, имитирующие поведение браузера
+	///     false - не использовать такие настройки, пригодится при обращении по апи
+	/// </summary>
+	public bool UseDefaultBrowserSettings { get; set; } = true;
 
 	/// <summary>
 	/// Контейнер для куков, используется при инициализации клиента

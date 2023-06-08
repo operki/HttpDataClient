@@ -4,6 +4,7 @@ using System.Text.Json;
 using HttpDataClient.Environment;
 using HttpDataClient.Environment.Metrics;
 using HttpDataClient.Helpers;
+using HttpDataClient.LoadStat;
 using HttpDataClient.Results;
 
 namespace HttpDataClient;
@@ -14,11 +15,12 @@ public partial class HttpDataLoader
 	private const int SkipFilesWhenClear = 20;
 	private const int RetriesStopGrowing = 8;
 	private const int MaxReadLength = 1048576 * 1024;
-	private readonly HttpClientFactory httpClientFactory;
+	private readonly HttpDataFactory httpDataFactory;
 	private readonly bool onlyHttps;
 	private readonly DownloadStrategyFileName strategyFileName;
 	private readonly string cookiesPath;
 	private readonly TrackEnvironment environment;
+	private readonly HttpDataLoaderSettings settings;
 
 	private enum GetResult
 	{
@@ -40,21 +42,21 @@ public partial class HttpDataLoader
 			return;
 
 		using var outStream = File.Create(cookiesPath);
-		JsonSerializer.Serialize(outStream, httpClientFactory.ClientHandler.CookieContainer);
+		JsonSerializer.Serialize(outStream, httpDataFactory.ClientHandler.CookieContainer);
 	}
 
-	private static async Task<DataResult> GetAsyncInternal(TrackEnvironment environment, string url, string traceId, HttpClientFactory httpClientFactory, bool onlyHttps = true, int preLoadTimeout = HttpDataLoaderSettings.PreLoadTimeoutDefault, int retriesCount = HttpDataLoaderSettings.RetriesCountDefault)
+	private static async Task<DataResult> GetAsyncInternal(TrackEnvironment environment, LoadStatCalc loadStatCalc, string url, string traceId, HttpDataFactory httpDataFactory, bool onlyHttps = true, int preLoadTimeout = HttpDataLoaderSettings.PreLoadTimeoutDefault, int retriesCount = HttpDataLoaderSettings.RetriesCountDefault)
 	{
 		var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
-		var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(environment, () => httpClientFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead), tracePrefix, httpClientFactory.BaseUrl, url, onlyHttps, preLoadTimeout, retriesCount, null);
+		var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(environment, loadStatCalc, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead), tracePrefix, httpDataFactory.BaseUrl, url, onlyHttps, preLoadTimeout, retriesCount, null);
 		var result = new DataResult(response);
 		switch(getResult)
 		{
 			case GetResult.Fail:
-				environment.Log.Info($"{tracePrefix}Failed get '{url}'");
+				environment.Log.Info($"{tracePrefix}Failed get '{url.HideSecrets()}'");
 				break;
 			case GetResult.Success:
-				environment.Log.Info($"{tracePrefix}Get '{url}' ({(int)response.StatusCode} {response.StatusCode}): result length {result.Content?.Length}, elapsed {elapsed}");
+				environment.Log.Info($"{tracePrefix}Get '{url.HideSecrets()}' ({(int)response.StatusCode} {response.StatusCode}): result length {result.Content?.Length}, elapsed {elapsed}");
 				break;
 			case GetResult.StopException:
 				break;
@@ -64,23 +66,23 @@ public partial class HttpDataLoader
 		return result;
 	}
 
-	private static async Task<DataResult> PostAsyncInternal(TrackEnvironment environment, string url, byte[] body, string traceId, HttpClientFactory httpClientFactory, bool onlyHttps = true, int preLoadTimeout = HttpDataLoaderSettings.PreLoadTimeoutDefault, int retriesCount = HttpDataLoaderSettings.RetriesCountDefault)
+	private static async Task<DataResult> PostAsyncInternal(TrackEnvironment environment, LoadStatCalc loadStatCalc, string url, byte[] body, string traceId, HttpDataFactory httpDataFactory, bool onlyHttps = true, int preLoadTimeout = HttpDataLoaderSettings.PreLoadTimeoutDefault, int retriesCount = HttpDataLoaderSettings.RetriesCountDefault)
 	{
 		var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
-		var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(environment, () =>
+		var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(environment, loadStatCalc, () =>
 		{
 			var httpContent = new ByteArrayContent(body);
-			httpClientFactory.ModifyContent?.Invoke(httpContent);
-			return httpClientFactory.Client.PostAsync(url, httpContent);
-		}, tracePrefix, httpClientFactory.BaseUrl, url, onlyHttps, preLoadTimeout, retriesCount, null);
+			httpDataFactory.ModifyContent?.Invoke(httpContent);
+			return httpDataFactory.Client.PostAsync(url, httpContent);
+		}, tracePrefix, httpDataFactory.BaseUrl, url, onlyHttps, preLoadTimeout, retriesCount, null);
 		var result = new DataResult(response);
 		switch(getResult)
 		{
 			case GetResult.Fail:
-				environment.Log.Info($"{tracePrefix}Failed post '{url}'");
+				environment.Log.Info($"{tracePrefix}Failed post '{url.HideSecrets()}'");
 				break;
 			case GetResult.Success:
-				environment.Log.Info($"{tracePrefix}Post '{url}' ({(int)response.StatusCode} {response.StatusCode}): result length {result.Content?.Length}, elapsed {elapsed}");
+				environment.Log.Info($"{tracePrefix}Post '{url.HideSecrets()}' ({(int)response.StatusCode} {response.StatusCode}): result length {result.Content?.Length}, elapsed {elapsed}");
 				break;
 			case GetResult.StopException:
 				break;
@@ -92,16 +94,16 @@ public partial class HttpDataLoader
 
 	private async Task<HttpStreamResult> GetStreamAsync(string url, string fileName = null, string traceId = null)
 	{
-		return await GetStreamAsyncInternal(environment, url, traceId, httpClientFactory, strategyFileName, fileName, httpClientFactory.BaseUrl, onlyHttps, PreLoadTimeout, RetriesCount);
+		return await GetStreamAsyncInternal(environment, settings.LoadStatCalc, url, traceId, httpDataFactory, strategyFileName, fileName, httpDataFactory.BaseUrl, onlyHttps, settings.PreLoadTimeout, settings.RetriesCount);
 	}
 
-	private static async Task<HttpStreamResult> GetStreamAsyncInternal(TrackEnvironment environment, string url, string traceId, HttpClientFactory httpClientFactory, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string fileName = null, string site = null, bool onlyHttps = true, int preLoadTimeout = HttpDataLoaderSettings.PreLoadTimeoutDefault, int retriesCount = HttpDataLoaderSettings.RetriesCountDefault)
+	private static async Task<HttpStreamResult> GetStreamAsyncInternal(TrackEnvironment environment, LoadStatCalc loadStatCalc, string url, string traceId, HttpDataFactory httpDataFactory, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string fileName = null, string site = null, bool onlyHttps = true, int preLoadTimeout = HttpDataLoaderSettings.PreLoadTimeoutDefault, int retriesCount = HttpDataLoaderSettings.RetriesCountDefault)
 	{
 		var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
 		var tmpFileName = GetFileName(strategyFileName, url, fileName);
 		long totalSize = 0;
 
-		environment.Log.Info($"{tracePrefix}Start download from '{url}'...");
+		environment.Log.Info($"{tracePrefix}Start download from '{url.HideSecrets()}'...");
 		var sw = Stopwatch.StartNew();
 		while(true)
 		{
@@ -109,18 +111,26 @@ public partial class HttpDataLoader
 			if(resumeDownload)
 			{
 				totalSize = new FileInfo(tmpFileName).Length;
-				environment.Log.Info($"{tracePrefix}Already downloaded {totalSize} bytes from '{url}'. Continue download...");
+				environment.Log.Info($"{tracePrefix}Already downloaded {totalSize} bytes from '{url.HideSecrets()}'. Continue download...");
 			}
-			var (getResult, response, _) = GetWithRetriesInternalAsync(environment, () =>
-			{
-				var request = new HttpRequestMessage(HttpMethod.Get, url);
-				request.Headers.Range = resumeDownload
-					? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + MaxReadLength)
-					: new RangeHeaderValue(0, MaxReadLength);
+			var (getResult, response, _) = await GetWithRetriesInternalAsync(environment, loadStatCalc, () =>
+				{
+					try
+					{
+						var request = new HttpRequestMessage(HttpMethod.Get, url);
+						request.Headers.Range = resumeDownload
+							? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + MaxReadLength)
+							: new RangeHeaderValue(0, MaxReadLength);
 
-				return httpClientFactory.Client.SendAsync(request);
-			}, tracePrefix, site, url, onlyHttps, preLoadTimeout, retriesCount, exception => exception.ToString().Contains("416"))
-				.ConfigureAwait(false).GetAwaiter().GetResult();
+						return httpDataFactory.Client.SendAsync(request);
+					}
+					catch(Exception e)
+					{
+						Console.WriteLine(e);
+						throw;
+					}
+				}, tracePrefix, site, url, onlyHttps, preLoadTimeout, retriesCount, exception => exception.ToString().Contains("416"))
+				.ConfigureAwait(false);
 			switch(getResult)
 			{
 				case GetResult.StopException:
@@ -153,14 +163,14 @@ public partial class HttpDataLoader
 
 			var elapsed = sw.Elapsed;
 			var result = new HttpStreamResult(tmpFileName, response);
-			environment.Log.Info($"{tracePrefix}Downloaded '{url}' ({(int)result.ResponseMessage.StatusCode} {result.ResponseMessage.StatusCode}): result length {result.Length}, elapsed {elapsed}, rate {(decimal)(result.Length / (elapsed.TotalSeconds + 0.0001) / 1000000)::0.00 MB/s}");
+			environment.Log.Info($"{tracePrefix}Downloaded '{url.HideSecrets()}' ({(int)result.ResponseMessage.StatusCode} {result.ResponseMessage.StatusCode}): result length {result.Length}, elapsed {elapsed}, rate {(decimal)(result.Length / (elapsed.TotalSeconds + 0.0001) / 1000000)::0.00 MB/s}");
 			return result;
 		}
 	}
 
 	private static string GetFileName(DownloadStrategyFileName strategyFileName, string url, string fileName)
 	{
-		if(!string.IsNullOrWhiteSpace(fileName))
+		if(fileName.IsSignificant())
 			return Path.Combine(TempDir, LocalHelper.GetSafeFileName(fileName));
 
 		return strategyFileName switch
@@ -172,7 +182,7 @@ public partial class HttpDataLoader
 		};
 	}
 
-	private static async Task<(GetResult, HttpResponseMessage, TimeSpan?)> GetWithRetriesInternalAsync(TrackEnvironment environment, Func<Task<HttpResponseMessage>> httpGetter, string tracePrefix, string baseSite, string url, bool onlyHttps, int preLoadTimeout, int retriesCount, Func<Exception, bool> stopDownload)
+	private static async Task<(GetResult, HttpResponseMessage, TimeSpan?)> GetWithRetriesInternalAsync(TrackEnvironment environment, LoadStatCalc loadStatCalc, Func<Task<HttpResponseMessage>> httpGetter, string tracePrefix, string baseSite, string url, bool onlyHttps, int preLoadTimeout, int retriesCount, Func<Exception, bool> stopDownload)
 	{
 		Directory.CreateDirectory(TempDir);
 		HttpResponseMessage response = null;
@@ -187,8 +197,9 @@ public partial class HttpDataLoader
 					break;
 
 				Exception exception = null;
-				environment.Metrics.Inc(DownloadMetrics.UrlTotalRequests);
 				Thread.Sleep(sleepTime);
+				loadStatCalc?.Inc();
+				environment.Metrics.Inc(DownloadMetrics.UrlTotalRequests);
 				var sw = Stopwatch.StartNew();
 				try
 				{
@@ -218,12 +229,12 @@ public partial class HttpDataLoader
 						if(stopDownload != null && stopDownload.Invoke(exception))
 						{
 							getResult = GetResult.StopException;
-							environment.Log.Info($"{tracePrefix}Stop '{url}': elapsed {sw.Elapsed}", exception);
+							environment.Log.Info($"{tracePrefix}Stop '{url.HideSecrets()}': elapsed {sw.Elapsed}", exception);
 						}
 						else
 						{
 							sleepTime = preLoadTimeout * ((i > RetriesStopGrowing ? RetriesStopGrowing : i) + 2);
-							environment.Log.Error($"{tracePrefix}Failed '{url}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
+							environment.Log.Error($"{tracePrefix}Failed '{url.HideSecrets()}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
 						}
 					}
 				}
@@ -233,14 +244,14 @@ public partial class HttpDataLoader
 		}
 		catch(Exception e)
 		{
-			environment.Log.Fatal($"{tracePrefix}Failed '{url}'", e);
+			environment.Log.Fatal($"{tracePrefix}Failed '{url.HideSecrets()}'", e);
 			return (GetResult.Fail, response, null);
 		}
 	}
 
 	private static void UrlCheckOrThrow(string baseSite, string url, bool onlyHttps)
 	{
-		var uri = HttpClientFactory.GetUri(url, out var uriKind);
+		var uri = HttpDataFactory.GetUri(url, out var uriKind);
 		if(baseSite == null)
 		{
 			if(uriKind == UriKind.Relative)
@@ -258,12 +269,5 @@ public partial class HttpDataLoader
 		{
 			throw new Exception($"Can't get request with '{url}', only site '{baseSite}' allowed");
 		}
-	}
-
-	private static string ToLowerFirstChar(string str)
-	{
-		return string.IsNullOrEmpty(str)
-			? str
-			: char.ToLowerInvariant(str[0]) + str.Substring(1);
 	}
 }
