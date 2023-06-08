@@ -2,7 +2,7 @@
 
 namespace HttpDataClient.Helpers;
 
-public static class IdGenerator
+internal static class IdGenerator
 {
 	private static readonly char[] Base62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".ToCharArray();
 	private static readonly Random Random = new();

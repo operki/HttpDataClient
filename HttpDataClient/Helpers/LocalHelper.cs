@@ -2,7 +2,7 @@
 
 namespace HttpDataClient.Helpers;
 
-public static class LocalHelper
+internal static class LocalHelper
 {
     private static readonly Regex RemoveInvalidRegex = new Regex($"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))}]");
 

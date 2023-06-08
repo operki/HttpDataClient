@@ -2,7 +2,7 @@
 
 namespace HttpDataClient.Helpers;
 
-public static class DateUtils
+internal static class DateUtils
 {
     public static string ToSortableDotedString(this DateTime dateTime)
     {

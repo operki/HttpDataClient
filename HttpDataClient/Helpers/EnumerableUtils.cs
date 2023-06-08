@@ -1,6 +1,6 @@
 ﻿namespace HttpDataClient.Helpers;
 
-public static class EnumerableUtils
+internal static class EnumerableUtils
 {
     public static bool IsSignificant<T>(this IEnumerable<T> enumerable, Func<T, bool> action = null)
     {

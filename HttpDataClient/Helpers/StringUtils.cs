@@ -1,6 +1,6 @@
 ﻿namespace HttpDataClient.Helpers;
 
-public static class StringUtils
+internal static class StringUtils
 {
     public static string ToLowerFirstChar(this string str)
     {

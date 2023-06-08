@@ -2,7 +2,7 @@
 
 namespace HttpDataClient.LoadStat;
 
-public class LoadStatRange
+internal class LoadStatRange
 {
 	private readonly LoadStatType loadStatType;
 	private readonly DateTime startDt;

@@ -1,6 +1,6 @@
 ﻿namespace HttpDataClient.LoadStat;
 
-public enum LoadStatType
+internal enum LoadStatType
 {
 	Unknown,
 	Minutes,

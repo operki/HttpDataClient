@@ -63,7 +63,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Подсчет статистики загрузки источника, если указан BaseUrl
 	/// </summary>
-	public LoadStatCalc LoadStatCalc { get; set; }
+	internal LoadStatCalc LoadStatCalc { get; private set; }
 
 	/// <summary>
 	/// Стратегия именования файла при скачивании на диск через методы, возвращающие HttpStreamResult

@@ -4,7 +4,7 @@ using HttpDataClient.Helpers;
 
 namespace HttpDataClient.LoadStat;
 
-public class LoadStatCalc
+internal class LoadStatCalc
 {
 	private readonly string id;
 	private readonly string siteHost;

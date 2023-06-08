@@ -2,7 +2,7 @@
 
 namespace HttpDataClient.Helpers;
 
-public static class UrlHelper
+internal static class UrlHelper
 {
     public static string GetHost(string url)
     {
