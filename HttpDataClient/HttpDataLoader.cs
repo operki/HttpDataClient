@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using HttpDataClient.Environment;
 using HttpDataClient.Helpers;
+using HttpDataClient.Requests;
 using HttpDataClient.Results;
 
 namespace HttpDataClient;
@@ -37,7 +38,7 @@ public partial class HttpDataLoader
 	public static DataResult JustGet(TrackEnvironment environment, string url, HttpDataLoaderSettings settings = null, string traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return GetAsyncInternal(environment, null, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
+        return GetAsyncInternal(new HttpRequest(environment, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -51,7 +52,7 @@ public partial class HttpDataLoader
 	public static DataResult JustGetSuccess(TrackEnvironment environment, string url, HttpDataLoaderSettings settings = null, string traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        var result = GetAsyncInternal(environment, null, url, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
+        var result = GetAsyncInternal(new HttpRequest(environment, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
             throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
 
@@ -70,7 +71,7 @@ public partial class HttpDataLoader
 	public static DataResult JustPost(TrackEnvironment environment, string url, byte[] body, HttpDataLoaderSettings settings = null, string traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return PostAsyncInternal(environment, null, url, body, traceId, new HttpDataFactory(settings), settings.OnlyHttps, settings.PreLoadTimeout, settings.RetriesCount).ConfigureAwait(false).GetAwaiter().GetResult();
+        return PostAsyncInternal(new HttpRequest(environment, settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -107,7 +108,7 @@ public partial class HttpDataLoader
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> GetAsync(string url, string traceId = null)
     {
-        return await GetAsyncInternal(environment, settings.LoadStatCalc, url, traceId, httpDataFactory, onlyHttps, settings.PreLoadTimeout, settings.RetriesCount);
+        return await GetAsyncInternal(new HttpRequest(environment, settings, traceId, url, httpDataFactory));
     }
 
 	/// <summary>
@@ -146,8 +147,8 @@ public partial class HttpDataLoader
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string traceId = null)
-    {
-        return await PostAsyncInternal(environment, settings.LoadStatCalc, url, body, traceId, httpDataFactory, onlyHttps, settings.PreLoadTimeout, settings.RetriesCount);
+	{
+        return await PostAsyncInternal(new HttpRequest(environment, settings, traceId, url, httpDataFactory), body);
     }
 
 	/// <summary>
