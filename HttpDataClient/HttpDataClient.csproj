@@ -14,13 +14,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="log4net" Version="2.0.15" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-        <PackageReference Include="System.Text.Json" Version="7.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0"/>
+        <PackageReference Include="System.Text.Json" Version="7.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

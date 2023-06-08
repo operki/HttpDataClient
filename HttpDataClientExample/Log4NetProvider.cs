@@ -1,6 +1,7 @@
-﻿using log4net;
+﻿using HttpDataClient.Environment.Logs;
+using log4net;
 
-namespace HttpDataClient.Environment.Logs;
+namespace HttpDataClientExample;
 
 public class Log4NetProvider : ILogProvider
 {

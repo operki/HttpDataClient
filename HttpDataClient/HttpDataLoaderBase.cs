@@ -123,22 +123,22 @@ public partial class HttpDataLoader
             }
 
             var (getResult, response, _) = await GetWithRetriesInternalAsync(httpRequest, () =>
+            {
+                try
                 {
-                    try
-                    {
-                        var currentRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                        currentRequest.Headers.Range = resumeDownload
-                            ? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + MaxReadLength)
-                            : new RangeHeaderValue(0, MaxReadLength);
+                    var currentRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                    currentRequest.Headers.Range = resumeDownload
+                        ? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + MaxReadLength)
+                        : new RangeHeaderValue(0, MaxReadLength);
 
-                        return httpDataFactory.Client.SendAsync(currentRequest);
-                    }
-                    catch(Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-                }).ConfigureAwait(false);
+                    return httpDataFactory.Client.SendAsync(currentRequest);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }).ConfigureAwait(false);
 
             switch(getResult)
             {

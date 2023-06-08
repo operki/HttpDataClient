@@ -1,1 +1,1 @@
-Comfortable client for HttpClient
+Comfortable client for HttpClient. Example of use: https://github.com/operki/HttpDataClient/tree/master/HttpDataClientExample file Program.cs. You can copy Log4NetProvider.cs and Log4NetMetricProvider.cs to your project and use it with this package

@@ -11,7 +11,7 @@ namespace HttpDataClient;
 /// </summary>
 public partial class HttpDataLoader
 {
-	public HttpDataLoader(TrackEnvironment environment, HttpDataLoaderSettings settings = null)
+    public HttpDataLoader(TrackEnvironment environment, HttpDataLoaderSettings settings = null)
     {
         this.environment = environment;
         this.settings = settings ?? new HttpDataLoaderSettings();
@@ -147,7 +147,7 @@ public partial class HttpDataLoader
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string traceId = null)
-	{
+    {
         return await PostAsyncInternal(new HttpRequest(environment, settings, traceId, url, httpDataFactory), body);
     }
 
