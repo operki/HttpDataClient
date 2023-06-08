@@ -1,4 +1,4 @@
-﻿namespace EnvironmentUtils.Helpers;
+﻿namespace HttpDataClient.Helpers;
 
 public static class StringUtils
 {

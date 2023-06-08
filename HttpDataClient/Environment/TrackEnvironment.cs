@@ -1,7 +1,7 @@
-﻿using EnvironmentUtils.Logs;
-using EnvironmentUtils.Metrics;
+﻿using HttpDataClient.Environment.Logs;
+using HttpDataClient.Environment.Metrics;
 
-namespace EnvironmentUtils.Environment;
+namespace HttpDataClient.Environment;
 
 public class TrackEnvironment
 {

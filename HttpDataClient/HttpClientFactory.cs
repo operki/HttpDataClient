@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace HttpDataClient;
 
-internal class HttpDataFactory : IHttpClientFactory
+internal class HttpClientFactory : IHttpClientFactory
 {
 	public readonly System.Net.Http.HttpClient Client;
 	public readonly HttpClientHandler ClientHandler;
@@ -16,7 +16,7 @@ internal class HttpDataFactory : IHttpClientFactory
 	private readonly int downloadTimeout;
 	private readonly Action<System.Net.Http.HttpClient> modifyClient;
 
-	internal HttpDataFactory(HttpClientSettings settings)
+	internal HttpClientFactory(HttpDataLoaderSettings settings)
 	{
 		downloadTimeout = settings.DownloadTimeout;
 		modifyClient = settings.ModifyClient;
@@ -44,17 +44,17 @@ internal class HttpDataFactory : IHttpClientFactory
 		{
 			baseUri = GetUri(settings.BaseUrl, out var uriKind);
 			if(uriKind == UriKind.Relative)
-				throw new Exception($"Can't init HttpDataClient with '{baseUri}', need absolute path");
+				throw new Exception($"Can't init HttpDataLoader with '{baseUri}', need absolute path");
 
 			BaseUrl = baseUri.GetLeftPart(UriPartial.Authority);
 			if(baseUri.Scheme != Uri.UriSchemeHttps)
 			{
 				if(settings.OnlyHttps)
-					throw new Exception($"Can't init HttpDataClient with '{baseUri}', only {Uri.UriSchemeHttps} allowed with parameters");
+					throw new Exception($"Can't init HttpDataLoader with '{baseUri}', only {Uri.UriSchemeHttps} allowed with parameters");
 				if(settings.Proxy != null)
-					throw new Exception($"Can't init HttpDataClient with '{baseUri}', only {Uri.UriSchemeHttps} allowed with proxy");
+					throw new Exception($"Can't init HttpDataLoader with '{baseUri}', only {Uri.UriSchemeHttps} allowed with proxy");
 				if(baseUri.Scheme != Uri.UriSchemeHttp)
-					throw new Exception($"Can't init HttpDataClient with '{baseUri}', only {Uri.UriSchemeHttp} and {Uri.UriSchemeHttps} allowed");
+					throw new Exception($"Can't init HttpDataLoader with '{baseUri}', only {Uri.UriSchemeHttp} and {Uri.UriSchemeHttps} allowed");
 			}
 		}
 

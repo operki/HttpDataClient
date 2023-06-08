@@ -12,15 +12,15 @@ public enum DownloadStrategyFileName
 }
 
 /// <summary>
-/// Настройки для HttpDataFactory
+/// Настройки для HttpClientFactory
 /// </summary>
-public class HttpClientSettings
+public class HttpDataLoaderSettings
 {
 	public const int DownloadTimeoutDefault = 1_000 * 60 * 15;
 	public const int PreLoadTimeoutDefault = 1_000;
 	public const int RetriesCountDefault = 5;
 
-	public HttpClientSettings(IReadOnlyDictionary<string, string> settings)
+	public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings)
 	{
 		if(settings.ContainsKey("baseUrl"))
 			BaseUrl = settings["baseUrl"];
@@ -34,7 +34,7 @@ public class HttpClientSettings
 			RetriesCount = int.Parse(settings["retriesCount"]);
 	}
 
-	public HttpClientSettings() { }
+	public HttpDataLoaderSettings() { }
 
 	/// <summary>
 	/// Добавляет префикс к запросам с  относительными путями. Если указан то при попытке скачивания данных по урлу с отличающимся хостом будет бросать Exception 
@@ -81,24 +81,24 @@ public class HttpClientSettings
 	public Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool> SslValidation { get; set; } = null;
 
 	/// <summary>
-	/// Модификация HttpClientHandler, применяется разово при инициализации HttpDataFactory
+	/// Модификация HttpClientHandler, применяется разово при инициализации HttpClientFactory
 	/// </summary>
 	public Action<HttpClientHandler> ModifyClientHandler { get; set; } = null;
 
 	/// <summary>
-	/// Модификация HttpClient, применяется разово при инициализации HttpDataFactory
+	/// Модификация HttpDataLoader, применяется разово при инициализации HttpClientFactory
 	/// </summary>
 	public Action<System.Net.Http.HttpClient> ModifyClient { get; set; } = null;
 
 	/// <summary>
-	/// Модификация HttpClient, применяется разово при post-запросах
+	/// Модификация HttpDataLoader, применяется разово при post-запросах
 	/// Позволяет, например, указывать ContentType
 	/// content => content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
 	/// </summary>
 	public Action<ByteArrayContent> ModifyContent { get; set; } = null;
 
 	/// <summary>
-	/// Креды для HttpClientHandler, применяется разово при инициализации HttpDataFactory
+	/// Креды для HttpClientHandler, применяется разово при инициализации HttpClientFactory
 	/// </summary>
 	public ICredentials Credentials { get; set; } = null;
 

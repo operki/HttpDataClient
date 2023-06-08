@@ -1,4 +1,4 @@
-﻿namespace EnvironmentUtils.Metrics.Types;
+﻿namespace HttpDataClient.Environment.Metrics;
 
 public enum DownloadMetrics
 {

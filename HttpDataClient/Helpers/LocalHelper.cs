@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace EnvironmentUtils.Helpers;
+namespace HttpDataClient.Helpers;
 
 public static class LocalHelper
 {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using EnvironmentUtils.Helpers;
+using HttpDataClient.Helpers;
 using log4net;
 
-namespace EnvironmentUtils.Metrics;
+namespace HttpDataClient.Environment.Metrics;
 
 public class Log4NetMetrics : IMetricProvider
 {
@@ -19,19 +19,9 @@ public class Log4NetMetrics : IMetricProvider
         Inc(key.ToString().ToLowerFirstChar());
     }
 
-    public void Add<T>(T key, long addValue) where T : Enum
-    {
-        Add(key.ToString().ToLowerFirstChar(), addValue);
-    }
-
-    public void Inc(string key)
+    private void Inc(string key)
     {
         metricsStorage.AddOrUpdate(key, 1, (_, value) => value + 1);
-    }
-
-    public void Add(string key, long addValue)
-    {
-        metricsStorage.AddOrUpdate(key, addValue, (_, value) => value + addValue);
     }
 
     public void Flush()
