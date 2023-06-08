@@ -26,6 +26,11 @@ public class Log4NetMetrics : IMetricProvider
                 logger.Info($"CHICKEN_DELTA {key} {value}");
     }
 
+    ~Log4NetMetrics()
+    {
+        Flush();
+    }
+
     private void Inc(string key)
     {
         metricsStorage.AddOrUpdate(key, 1, (_, value) => value + 1);

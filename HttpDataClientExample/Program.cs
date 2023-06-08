@@ -1,5 +1,4 @@
 ﻿using HttpDataClient;
-using HttpDataClient.Environment;
 using HttpDataClientExample;
 using log4net;
 using log4net.Config;
@@ -8,9 +7,8 @@ Console.WriteLine("Hello, World!");
 
 XmlConfigurator.Configure();
 var logger = LogManager.GetLogger("root");
-var environment = new TrackEnvironment(new Log4NetProvider(logger), new Log4NetMetrics(logger));
 
-var httpDataClient = new HttpDataLoader(environment, new HttpDataLoaderSettings
+var httpDataClient = new HttpDataLoader(new Log4NetProvider(logger), new Log4NetMetrics(logger), new HttpDataLoaderSettings
 {
     BaseUrl = "https://www.google.com"
 });

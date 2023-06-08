@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using HttpDataClient.Environment;
+using HttpDataClient.Environment.Logs;
 using HttpDataClient.Helpers;
 
 namespace HttpDataClient.LoadStat;
@@ -8,18 +8,18 @@ internal class LoadStatCalc
 {
     private const int MaxCapacity = 100000;
     private static Timer LogStatTimer;
-    private readonly TrackEnvironment environment;
     private readonly string id;
+    private readonly ILogProvider log;
     private readonly string siteHost;
     private DateTime startDt;
 
-    public LoadStatCalc(TrackEnvironment environment, string baseUrl)
+    public LoadStatCalc(ILogProvider log, string baseUrl)
     {
         id = IdGenerator.GetId();
-        this.environment = environment;
+        this.log = log;
         siteHost = UrlHelper.GetHost(baseUrl).ToLowerFirstChar();
         LogStatTimer = new Timer(LogStat, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
-        environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Start calc load stats");
+        log.Info($"[HttpDataClient.LoadStats.{id}] Start calc load stats");
     }
 
     private ConcurrentDictionary<string, LoadStatRange> LoadStatMinutes { get; set; } = new();
@@ -35,9 +35,9 @@ internal class LoadStatCalc
 
             var currentDt = DateTime.UtcNow;
             var mostLoad = LoadStatMinutes.Values.OrderBy(range => range.Count).Last();
-            environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
+            log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
             var averageLoad = LoadStatMinutes.Values.Sum(range => range.Count) / LoadStatMinutes.Count;
-            environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per minutes is {averageLoad}");
+            log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per minutes is {averageLoad}");
             if(LoadStatMinutes.Count > MaxCapacity)
                 LoadStatMinutes = new ConcurrentDictionary<string, LoadStatRange>(LoadStatMinutes
                     .OrderBy(kvp => kvp)
@@ -52,13 +52,13 @@ internal class LoadStatCalc
                     .OrderBy(kvp => kvp.Key)
                     .Reverse().Take(2).Reverse()
                     .First().Value;
-                environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: last {lastHourStat.GetStat()}");
+                log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: last {lastHourStat.GetStat()}");
             }
 
             mostLoad = LoadStatHours.Values.OrderBy(range => range.Count).Last();
-            environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
+            log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
             averageLoad = LoadStatHours.Values.Sum(range => range.Count) / LoadStatHours.Count;
-            environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per hours is {averageLoad}");
+            log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per hours is {averageLoad}");
             if(currentDt < startDt.AddDays(1))
                 return;
 
@@ -68,17 +68,17 @@ internal class LoadStatCalc
                     .OrderBy(kvp => kvp.Key)
                     .Reverse().Take(2).Reverse()
                     .First().Value;
-                environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: last {lastDayStat.GetStat()}");
+                log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: last {lastDayStat.GetStat()}");
             }
 
             mostLoad = LoadStatDays.Values.OrderBy(range => range.Count).Last();
-            environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
+            log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
             averageLoad = LoadStatDays.Values.Sum(range => range.Count) / LoadStatDays.Count;
-            environment.Log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per days is {averageLoad}");
+            log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per days is {averageLoad}");
         }
         catch(Exception e)
         {
-            environment.Log.Fatal($"[HttpDataClient.LoadStats.{id}] Exception while calc load stats", e);
+            log.Fatal($"[HttpDataClient.LoadStats.{id}] Exception while calc load stats", e);
         }
     }
 

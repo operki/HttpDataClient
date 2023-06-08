@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using HttpDataClient.Environment;
+using HttpDataClient.Environment.Logs;
 using HttpDataClient.LoadStat;
 
 namespace HttpDataClient;
@@ -14,10 +14,10 @@ public class HttpDataLoaderSettings
     public const int DownloadTimeoutDefault = 1_000 * 60 * 15;
     public const int PreLoadTimeoutDefault = 1_000;
     public const int RetriesCountDefault = 5;
-    private readonly TrackEnvironment environment;
+    private readonly ILogProvider logProvider;
     private string baseUrl;
 
-    public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings, TrackEnvironment environment = null)
+    public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings, ILogProvider logProvider = null)
     {
         if(settings.ContainsKey("baseUrl"))
             BaseUrl = settings["baseUrl"];
@@ -31,9 +31,9 @@ public class HttpDataLoaderSettings
             RetriesCount = int.Parse(settings["retriesCount"]);
     }
 
-    public HttpDataLoaderSettings(TrackEnvironment environment = null)
+    public HttpDataLoaderSettings(ILogProvider logProvider = null)
     {
-        this.environment = environment;
+        this.logProvider = logProvider;
     }
 
     public HttpDataLoaderSettings() { }
@@ -48,8 +48,8 @@ public class HttpDataLoaderSettings
         set
         {
             baseUrl = value;
-            if(environment != null)
-                LoadStatCalc = new LoadStatCalc(environment, baseUrl);
+            if(logProvider != null)
+                LoadStatCalc = new LoadStatCalc(logProvider, baseUrl);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Net;
-using HttpDataClient.Environment;
+using HttpDataClient.Environment.Logs;
+using HttpDataClient.Environment.Metrics;
 using HttpDataClient.Helpers;
 using HttpDataClient.Requests;
 using HttpDataClient.Results;
@@ -11,9 +12,10 @@ namespace HttpDataClient;
 /// </summary>
 public partial class HttpDataLoader
 {
-    public HttpDataLoader(TrackEnvironment environment, HttpDataLoaderSettings settings = null)
+    public HttpDataLoader(ILogProvider logProvider, IMetricProvider metricProvider, HttpDataLoaderSettings settings = null)
     {
-        this.environment = environment;
+        this.logProvider = logProvider;
+        this.metricProvider = metricProvider;
         this.settings = settings ?? new HttpDataLoaderSettings();
         onlyHttps = this.settings.OnlyHttps || this.settings.Proxy != null;
         strategyFileName = this.settings.StrategyFileName;
@@ -30,29 +32,31 @@ public partial class HttpDataLoader
 	/// <summary>
 	///     Обычный get-запрос
 	/// </summary>
-	/// <param name="environment">Окружение курочки</param>
+	/// <param name="onceLogProvider">Лог загрузчика</param>
+	/// <param name="onceMetricProvider">Метрики загрузчика</param>
 	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGet(TrackEnvironment environment, string url, HttpDataLoaderSettings settings = null, string traceId = null)
+	public static DataResult JustGet(ILogProvider onceLogProvider, IMetricProvider onceMetricProvider, string url, HttpDataLoaderSettings settings = null, string traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return GetAsyncInternal(new HttpRequest(environment, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
+        return GetAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
 	///     Get-запрос, при неудаче бросает Exception
 	/// </summary>
-	/// <param name="environment">Окружение курочки</param>
+	/// <param name="onceLogProvider">Лог загрузчика</param>
+	/// <param name="onceMetricProvider">Метрики загрузчика</param>
 	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGetSuccess(TrackEnvironment environment, string url, HttpDataLoaderSettings settings = null, string traceId = null)
+	public static DataResult JustGetSuccess(ILogProvider onceLogProvider, IMetricProvider onceMetricProvider, string url, HttpDataLoaderSettings settings = null, string traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        var result = GetAsyncInternal(new HttpRequest(environment, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
+        var result = GetAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
             throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
 
@@ -62,16 +66,17 @@ public partial class HttpDataLoader
 	/// <summary>
 	///     Обычный post-запрос
 	/// </summary>
-	/// <param name="environment">Окружение курочки</param>
+	/// <param name="onceLogProvider">Лог загрузчика</param>
+	/// <param name="onceMetricProvider">Метрики загрузчика</param>
 	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
 	/// <param name="body">Тело запроса</param>
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustPost(TrackEnvironment environment, string url, byte[] body, HttpDataLoaderSettings settings = null, string traceId = null)
+	public static DataResult JustPost(ILogProvider onceLogProvider, IMetricProvider onceMetricProvider, string url, byte[] body, HttpDataLoaderSettings settings = null, string traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return PostAsyncInternal(new HttpRequest(environment, settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
+        return PostAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -108,7 +113,7 @@ public partial class HttpDataLoader
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> GetAsync(string url, string traceId = null)
     {
-        return await GetAsyncInternal(new HttpRequest(environment, settings, traceId, url, httpDataFactory));
+        return await GetAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory));
     }
 
 	/// <summary>
@@ -148,7 +153,7 @@ public partial class HttpDataLoader
 	/// <returns>Результат скачивания</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string traceId = null)
     {
-        return await PostAsyncInternal(new HttpRequest(environment, settings, traceId, url, httpDataFactory), body);
+        return await PostAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), body);
     }
 
 	/// <summary>
