@@ -7,13 +7,13 @@ namespace HttpDataClient;
 
 internal class HttpDataFactory : IHttpClientFactory
 {
-    private readonly Uri baseUri;
-    public readonly string BaseUrl;
+    private readonly Uri? baseUri;
+    public readonly string? BaseUrl;
     public readonly HttpClient Client;
     public readonly HttpClientHandler ClientHandler;
     private readonly int downloadTimeout;
-    private readonly Action<HttpClient> modifyClient;
-    public readonly Action<ByteArrayContent> ModifyContent;
+    private readonly Action<HttpClient>? modifyClient;
+    public readonly Action<ByteArrayContent>? ModifyContent;
     private readonly bool useDefaultBrowserSettings;
 
     internal HttpDataFactory(HttpDataLoaderSettings settings)
@@ -59,7 +59,7 @@ internal class HttpDataFactory : IHttpClientFactory
             }
         }
 
-        Client = CreateClient(null);
+        Client = CreateClient(string.Empty);
     }
 
     public HttpClient CreateClient(string _)
@@ -107,7 +107,7 @@ internal class HttpDataFactory : IHttpClientFactory
         throw new Exception($"Incorrect uri: '{url}'");
     }
 
-    private static CookieContainer LoadCookies(string cookiesPath)
+    private static CookieContainer? LoadCookies(string? cookiesPath)
     {
         if(cookiesPath == null || !File.Exists(cookiesPath))
             return null;

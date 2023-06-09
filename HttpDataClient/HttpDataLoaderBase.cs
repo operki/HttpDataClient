@@ -15,17 +15,16 @@ public partial class HttpDataLoader
     private const int SkipFilesWhenClear = 20;
     private const int RetriesStopGrowing = 8;
     private const int MaxReadLength = 1048576 * 1024;
-    private readonly string cookiesPath;
+    private readonly string? cookiesPath;
     private readonly HttpDataFactory httpDataFactory;
-    private readonly ILogProvider logProvider;
-    private readonly IMetricProvider metricProvider;
-    private readonly bool onlyHttps;
+    private readonly ILogProvider? logProvider;
+    private readonly IMetricProvider? metricProvider;
     private readonly HttpDataLoaderSettings settings;
     private readonly DownloadStrategyFileName strategyFileName;
 
     ~HttpDataLoader()
     {
-        metricProvider.Flush();
+        metricProvider?.Flush();
         LocalHelper.TryClearDir(TempDir);
         SaveCookies();
     }
@@ -46,17 +45,20 @@ public partial class HttpDataLoader
         var traceId = httpRequest.TraceId;
         var url = httpRequest.Url;
 
-        var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(httpRequest, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead));
-        var result = new DataResult(response);
-        switch(getResult)
+        var httpResponse = await GetWithRetriesInternalAsync(httpRequest, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead));
+        var responseResult = httpResponse.Result;
+        var responseMessage = httpResponse.Message;
+
+        var result = new DataResult(responseMessage);
+        switch(responseResult)
         {
-            case GetResult.Fail:
-                logProvider.Info($"{IdGenerator.GetPrefixAnyway(traceId)}Failed get '{url.HideSecrets()}'");
+            case HttpResponseResult.Fail:
+                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Failed get '{url.HideSecrets()}'");
                 break;
-            case GetResult.Success:
-                logProvider.Info($"{IdGenerator.GetPrefixAnyway(traceId)}Get '{url.HideSecrets()}' ({(int)response.StatusCode} {response.StatusCode}): result length {result.Content?.Length}, elapsed {elapsed}");
+            case HttpResponseResult.Success:
+                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Get '{url.HideSecrets()}' ({(int)responseMessage!.StatusCode} {responseMessage.StatusCode}): result length {result.Content?.Length}, elapsed {httpResponse.ElapsedTime}");
                 break;
-            case GetResult.StopException:
+            case HttpResponseResult.StopException:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -72,22 +74,25 @@ public partial class HttpDataLoader
         var traceId = httpRequest.TraceId;
         var url = httpRequest.Url;
 
-        var (getResult, response, elapsed) = await GetWithRetriesInternalAsync(httpRequest, () =>
+        var httpResponse = await GetWithRetriesInternalAsync(httpRequest, () =>
         {
             var httpContent = new ByteArrayContent(body);
             httpDataFactory.ModifyContent?.Invoke(httpContent);
             return httpDataFactory.Client.PostAsync(url, httpContent);
         });
-        var result = new DataResult(response);
-        switch(getResult)
+        var responseResult = httpResponse.Result;
+        var responseMessage = httpResponse.Message;
+
+        var result = new DataResult(responseMessage);
+        switch(responseResult)
         {
-            case GetResult.Fail:
-                logProvider.Info($"{IdGenerator.GetPrefixAnyway(traceId)}Failed post '{url.HideSecrets()}'");
+            case HttpResponseResult.Fail:
+                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Failed post '{url.HideSecrets()}'");
                 break;
-            case GetResult.Success:
-                logProvider.Info($"{IdGenerator.GetPrefixAnyway(traceId)}Post '{url.HideSecrets()}' ({(int)response.StatusCode} {response.StatusCode}): result length {result.Content?.Length}, elapsed {elapsed}");
+            case HttpResponseResult.Success:
+                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Post '{url.HideSecrets()}' ({(int)responseMessage!.StatusCode} {responseMessage.StatusCode}): result length {result.Content?.Length}, elapsed {httpResponse.ElapsedTime}");
                 break;
-            case GetResult.StopException:
+            case HttpResponseResult.StopException:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -96,23 +101,23 @@ public partial class HttpDataLoader
         return result;
     }
 
-    private async Task<HttpStreamResult> GetStreamAsync(string url, string fileName = null, string traceId = null)
+    private async Task<HttpStreamResult> GetStreamAsync(string url, string? fileName = null, string? traceId = null)
     {
         return await GetStreamAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), strategyFileName, fileName);
     }
 
-    private static async Task<HttpStreamResult> GetStreamAsyncInternal(HttpRequest httpRequest, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string fileName = null)
+    private static async Task<HttpStreamResult> GetStreamAsyncInternal(HttpRequest httpRequest, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string? fileName = null)
     {
         var logProvider = httpRequest.LogProvider;
         var httpDataFactory = httpRequest.HttpDataFactory;
         var traceId = httpRequest.TraceId;
         var url = httpRequest.Url;
 
-        var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
+        var tracePrefix = IdGenerator.GetPrefix(traceId);
         var tmpFileName = GetFileName(strategyFileName, url, fileName);
         long totalSize = 0;
 
-        logProvider.Info($"{tracePrefix}Start download from '{url.HideSecrets()}'...");
+        logProvider?.Info($"{tracePrefix}Start download from '{url.HideSecrets()}'...");
         var sw = Stopwatch.StartNew();
         while(true)
         {
@@ -120,10 +125,10 @@ public partial class HttpDataLoader
             if(resumeDownload)
             {
                 totalSize = new FileInfo(tmpFileName).Length;
-                logProvider.Info($"{tracePrefix}Already downloaded {totalSize} bytes from '{url.HideSecrets()}'. Continue download...");
+                logProvider?.Info($"{tracePrefix}Already downloaded {totalSize} bytes from '{url.HideSecrets()}'. Continue download...");
             }
 
-            var (getResult, response, _) = await GetWithRetriesInternalAsync(httpRequest, () =>
+            var httpResponse = await GetWithRetriesInternalAsync(httpRequest, () =>
             {
                 try
                 {
@@ -140,23 +145,25 @@ public partial class HttpDataLoader
                     throw;
                 }
             }).ConfigureAwait(false);
+            var responseResult = httpResponse.Result;
+            var responseMessage = httpResponse.Message;
 
-            switch(getResult)
+            switch(responseResult)
             {
-                case GetResult.StopException:
+                case HttpResponseResult.StopException:
                     return totalSize == 0
-                        ? new HttpStreamResult(response)
-                        : new HttpStreamResult(tmpFileName, response, true);
-                case GetResult.Fail:
-                    return new HttpStreamResult(response);
-                case GetResult.Success:
+                        ? new HttpStreamResult(responseMessage)
+                        : new HttpStreamResult(tmpFileName, responseMessage, true);
+                case HttpResponseResult.Fail:
+                    return new HttpStreamResult(responseMessage);
+                case HttpResponseResult.Success:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
             bool endDownload;
-            using(var httpReadStream = response.Content.ReadAsStreamAsync())
+            using(var httpReadStream = responseMessage!.Content.ReadAsStreamAsync())
             {
                 using(var fileWriteStream = File.Open(tmpFileName, FileMode.Append))
                 {
@@ -172,16 +179,19 @@ public partial class HttpDataLoader
                 continue;
 
             var elapsed = sw.Elapsed;
-            var result = new HttpStreamResult(tmpFileName, response);
-            logProvider.Info($"{tracePrefix}Downloaded '{url.HideSecrets()}' ({(int)result.ResponseMessage.StatusCode} {result.ResponseMessage.StatusCode}): result length {result.Length}, elapsed {elapsed}, rate {(decimal)(result.Length / (elapsed.TotalSeconds + 0.0001) / 1000000)::0.00 MB/s}");
+            var result = new HttpStreamResult(tmpFileName, responseMessage);
+            var downloadRate = (decimal)(result.Length / (elapsed.TotalSeconds + 0.0001) / 1000000);
+            logProvider?.Info(result.ResponseMessage == null
+                ? $"{tracePrefix}Downloaded '{url.HideSecrets()}' Undefined error: result length {result.Length}, elapsed {elapsed}, rate {downloadRate::0.00 MB/s}"
+                : $"{tracePrefix}Downloaded '{url.HideSecrets()}' ({(int)result.ResponseMessage.StatusCode} {result.ResponseMessage.StatusCode}): result length {result.Length}, elapsed {elapsed}, rate {downloadRate::0.00 MB/s}");
             return result;
         }
     }
 
-    private static string GetFileName(DownloadStrategyFileName strategyFileName, string url, string fileName)
+    private static string GetFileName(DownloadStrategyFileName strategyFileName, string url, string? fileName)
     {
         if(fileName.IsSignificant())
-            return Path.Combine(TempDir, LocalHelper.GetSafeFileName(fileName));
+            return Path.Combine(TempDir, LocalHelper.GetSafeFileName(fileName!));
 
         return strategyFileName switch
         {
@@ -192,7 +202,7 @@ public partial class HttpDataLoader
         };
     }
 
-    private static async Task<(GetResult, HttpResponseMessage, TimeSpan?)> GetWithRetriesInternalAsync(HttpRequest httpRequest, Func<Task<HttpResponseMessage>> httpGetter)
+    private static async Task<HttpResponse> GetWithRetriesInternalAsync(HttpRequest httpRequest, Func<Task<HttpResponseMessage>> httpGetter)
     {
         var logProvider = httpRequest.LogProvider;
         var metricProvider = httpRequest.MetricProvider;
@@ -205,36 +215,38 @@ public partial class HttpDataLoader
         var retriesCount = httpRequest.RetriesCount;
         var stopDownload = httpRequest.StopDownload;
 
-        var tracePrefix = IdGenerator.GetPrefixAnyway(traceId);
+        var tracePrefix = IdGenerator.GetPrefix(traceId);
         Directory.CreateDirectory(TempDir);
-        HttpResponseMessage response = null;
-        var getResult = GetResult.Fail;
+        var response = new HttpResponse(HttpResponseResult.Fail, null, null);
         try
         {
             UrlCheckOrThrow(httpDataFactory.BaseUrl, url, onlyHttps);
             var sleepTime = preLoadTimeout;
             for(var i = 0; i < retriesCount; i++)
             {
-                if(getResult == GetResult.StopException)
+                if(response.Result == HttpResponseResult.StopException)
                     break;
 
-                Exception exception = null;
+                Exception? exception = null;
                 Thread.Sleep(sleepTime);
                 loadStatCalc?.Inc();
-                metricProvider.Inc(DownloadMetrics.UrlTotalRequests);
+                metricProvider?.Inc(DownloadMetrics.UrlTotalRequests);
                 var sw = Stopwatch.StartNew();
                 try
                 {
-                    response = await httpGetter.Invoke();
+                    var responseMessage = await httpGetter.Invoke();
+                    response.Message = responseMessage;
+                    response.ElapsedTime = sw.Elapsed;
 
-                    if(!response.IsSuccessStatusCode)
+                    if(!responseMessage.IsSuccessStatusCode)
                     {
-                        exception = new HttpRequestException($"{tracePrefix}({(int)response.StatusCode} {response.StatusCode})");
+                        exception = new HttpRequestException($"{tracePrefix}({(int)responseMessage.StatusCode} {responseMessage.StatusCode})");
                     }
                     else
                     {
-                        metricProvider.Inc(DownloadMetrics.UrlGoodRequests);
-                        return (GetResult.Success, response, sw.Elapsed);
+                        metricProvider?.Inc(DownloadMetrics.UrlGoodRequests);
+                        response.Result = HttpResponseResult.Success;
+                        return response;
                     }
                 }
                 catch(Exception e)
@@ -247,34 +259,34 @@ public partial class HttpDataLoader
                     sw.Stop();
                     if(exception != null)
                     {
-                        metricProvider.Inc(DownloadMetrics.UrlBadRequests);
+                        metricProvider?.Inc(DownloadMetrics.UrlBadRequests);
                         if(stopDownload != null && stopDownload.Invoke(exception))
                         {
-                            getResult = GetResult.StopException;
-                            logProvider.Info($"{tracePrefix}Stop '{url.HideSecrets()}': elapsed {sw.Elapsed}", exception);
+                            response.Result = HttpResponseResult.StopException;
+                            logProvider?.Info($"{tracePrefix}Stop '{url.HideSecrets()}': elapsed {sw.Elapsed}", exception);
                         }
                         else
                         {
                             sleepTime = preLoadTimeout * ((i > RetriesStopGrowing ? RetriesStopGrowing : i) + 2);
-                            logProvider.Error($"{tracePrefix}Failed '{url.HideSecrets()}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
+                            logProvider?.Error($"{tracePrefix}Failed '{url.HideSecrets()}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
                         }
                     }
                 }
             }
 
-            return (getResult, response, null);
+            return response;
         }
         catch(Exception e)
         {
-            logProvider.Fatal($"{tracePrefix}Failed '{url.HideSecrets()}'", e);
-            return (GetResult.Fail, response, null);
+            logProvider?.Fatal($"{tracePrefix}Failed '{url.HideSecrets()}'", e);
+            return response;
         }
     }
 
-    private static void UrlCheckOrThrow(string baseSite, string url, bool onlyHttps)
+    private static void UrlCheckOrThrow(string? baseSite, string url, bool onlyHttps)
     {
         var uri = HttpDataFactory.GetUri(url, out var uriKind);
-        if(baseSite == null)
+        if(!baseSite.IsSignificant())
         {
             if(uriKind == UriKind.Relative)
                 throw new Exception($"Can't get request with '{url}', need absolute path");
@@ -291,12 +303,5 @@ public partial class HttpDataLoader
         {
             throw new Exception($"Can't get request with '{url}', only site '{baseSite}' allowed");
         }
-    }
-
-    private enum GetResult
-    {
-        Fail,
-        Success,
-        StopException
     }
 }

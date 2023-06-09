@@ -14,10 +14,11 @@ public class HttpDataLoaderSettings
     public const int DownloadTimeoutDefault = 1_000 * 60 * 15;
     public const int PreLoadTimeoutDefault = 1_000;
     public const int RetriesCountDefault = 5;
-    private readonly ILogProvider logProvider;
-    private string baseUrl;
+    private readonly ILogProvider? logProvider;
+    private string? baseUrl;
 
-    public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings, ILogProvider logProvider = null)
+    public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings, ILogProvider? logProvider = null)
+        : this(logProvider)
     {
         if(settings.ContainsKey("baseUrl"))
             BaseUrl = settings["baseUrl"];
@@ -31,7 +32,7 @@ public class HttpDataLoaderSettings
             RetriesCount = int.Parse(settings["retriesCount"]);
     }
 
-    public HttpDataLoaderSettings(ILogProvider logProvider = null)
+    public HttpDataLoaderSettings(ILogProvider? logProvider = null)
     {
         this.logProvider = logProvider;
     }
@@ -42,7 +43,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Добавляет префикс к запросам с  относительными путями. Если указан то при попытке скачивания данных по урлу с отличающимся хостом будет бросать Exception
 	/// </summary>
-	public string BaseUrl
+	public string? BaseUrl
     {
         get => baseUrl;
         set
@@ -56,7 +57,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Подсчет статистики загрузки источника, если указан BaseUrl
 	/// </summary>
-	internal LoadStatCalc LoadStatCalc { get; private set; }
+	internal LoadStatCalc? LoadStatCalc { get; private set; }
 
 	/// <summary>
 	///     Стратегия именования файла при скачивании на диск через методы, возвращающие HttpStreamResult
@@ -74,7 +75,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Проксирование запросов
 	/// </summary>
-	public IWebProxy Proxy { get; set; } = null;
+	public IWebProxy? Proxy { get; set; } = null;
 
     public int DownloadTimeout { get; set; } = DownloadTimeoutDefault;
 
@@ -87,44 +88,44 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Контейнер для куков, используется при инициализации клиента
 	/// </summary>
-	public CookieContainer CookieContainer { get; set; } = null;
+	public CookieContainer? CookieContainer { get; set; } = null;
 
 	/// <summary>
 	///     Локальный путь к кукам, применяется при инициализации если не указан CookieContainer и при сохранении куков в Dispose
 	/// </summary>
-	public string CookiesPath { get; set; }
+	public string? CookiesPath { get; set; }
 
 	/// <summary>
 	///     Сертификат сервера, не учитывается если указан SslValidation
 	/// </summary>
-	public X509Certificate2 ServerCert { get; set; } = null;
+	public X509Certificate2? ServerCert { get; set; } = null;
 
 	/// <summary>
 	///     Валидация запроса с учетом сертификата
 	/// </summary>
-	public Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool> SslValidation { get; set; } = null;
+	public Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool>? SslValidation { get; set; } = null;
 
 	/// <summary>
 	///     Модификация HttpClientHandler, применяется разово при инициализации HttpClientFactory
 	/// </summary>
-	public Action<HttpClientHandler> ModifyClientHandler { get; set; } = null;
+	public Action<HttpClientHandler>? ModifyClientHandler { get; set; } = null;
 
 	/// <summary>
 	///     Модификация HttpDataLoader, применяется разово при инициализации HttpClientFactory
 	/// </summary>
-	public Action<HttpClient> ModifyClient { get; set; } = null;
+	public Action<HttpClient>? ModifyClient { get; set; } = null;
 
 	/// <summary>
 	///     Модификация HttpDataLoader, применяется разово при post-запросах
 	///     Позволяет, например, указывать ContentType
 	///     content => content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
 	/// </summary>
-	public Action<ByteArrayContent> ModifyContent { get; set; } = null;
+	public Action<ByteArrayContent>? ModifyContent { get; set; } = null;
 
 	/// <summary>
 	///     Креды для HttpClientHandler, применяется разово при инициализации HttpClientFactory
 	/// </summary>
-	public ICredentials Credentials { get; set; } = null;
+	public ICredentials? Credentials { get; set; } = null;
 
 	/// <summary>
 	///     Задержка перед отправкой запроса, помогает ограничить траффик к источнику, можно менять после инициализации

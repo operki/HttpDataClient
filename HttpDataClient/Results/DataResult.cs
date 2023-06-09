@@ -2,15 +2,15 @@
 
 public class DataResult
 {
-    public DataResult(HttpResponseMessage responseMessage)
+    public DataResult(HttpResponseMessage? responseMessage)
     {
         ResponseMessage = responseMessage;
     }
 
-    private HttpResponseMessage ResponseMessage { get; }
+    private HttpResponseMessage? ResponseMessage { get; }
     public bool IsSuccess => ResponseMessage?.IsSuccessStatusCode ?? false;
 
-    public string Content
+    public string? Content
     {
         get
         {
@@ -25,7 +25,7 @@ public class DataResult
         }
     }
 
-    public byte[] Data
+    public byte[]? Data
     {
         get
         {

@@ -7,18 +7,20 @@ namespace HttpDataClient.LoadStat;
 internal class LoadStatCalc
 {
     private const int MaxCapacity = 100000;
-    private static Timer LogStatTimer;
+#pragma warning disable CS8618
+    private static Timer logStatTimer;
+#pragma warning restore CS8618
     private readonly string id;
     private readonly ILogProvider log;
-    private readonly string siteHost;
+    private readonly string? siteHost;
     private DateTime startDt;
 
-    public LoadStatCalc(ILogProvider log, string baseUrl)
+    public LoadStatCalc(ILogProvider log, string? baseUrl)
     {
         id = IdGenerator.GetId();
         this.log = log;
         siteHost = UrlHelper.GetHost(baseUrl).ToLowerFirstChar();
-        LogStatTimer = new Timer(LogStat, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
+        logStatTimer = new Timer(LogStat, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
         log.Info($"[HttpDataClient.LoadStats.{id}] Start calc load stats");
     }
 

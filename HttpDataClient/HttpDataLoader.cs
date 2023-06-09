@@ -12,12 +12,11 @@ namespace HttpDataClient;
 /// </summary>
 public partial class HttpDataLoader
 {
-    public HttpDataLoader(ILogProvider logProvider, IMetricProvider metricProvider, HttpDataLoaderSettings settings = null)
+    public HttpDataLoader(HttpDataLoaderSettings? settings = null, ILogProvider? logProvider = null, IMetricProvider? metricProvider = null)
     {
         this.logProvider = logProvider;
         this.metricProvider = metricProvider;
         this.settings = settings ?? new HttpDataLoaderSettings();
-        onlyHttps = this.settings.OnlyHttps || this.settings.Proxy != null;
         strategyFileName = this.settings.StrategyFileName;
         LocalHelper.TryClearDir(TempDir, strategyFileName == DownloadStrategyFileName.Random
             ? 0
@@ -38,7 +37,7 @@ public partial class HttpDataLoader
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGet(ILogProvider onceLogProvider, IMetricProvider onceMetricProvider, string url, HttpDataLoaderSettings settings = null, string traceId = null)
+	public static DataResult JustGet(string url, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
         return GetAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -53,7 +52,7 @@ public partial class HttpDataLoader
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustGetSuccess(ILogProvider onceLogProvider, IMetricProvider onceMetricProvider, string url, HttpDataLoaderSettings settings = null, string traceId = null)
+	public static DataResult JustGetSuccess(string url, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
         var result = GetAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -73,7 +72,7 @@ public partial class HttpDataLoader
 	/// <param name="settings">Настройки для HttpDataFactory</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public static DataResult JustPost(ILogProvider onceLogProvider, IMetricProvider onceMetricProvider, string url, byte[] body, HttpDataLoaderSettings settings = null, string traceId = null)
+	public static DataResult JustPost(string url, byte[] body, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
         return PostAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -85,7 +84,7 @@ public partial class HttpDataLoader
 	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public DataResult GetSuccess(string url, string traceId = null)
+	public DataResult GetSuccess(string url, string? traceId = null)
     {
         var result = GetAsync(url, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
@@ -100,7 +99,7 @@ public partial class HttpDataLoader
 	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public DataResult Get(string url, string traceId = null)
+	public DataResult Get(string url, string? traceId = null)
     {
         return GetAsync(url, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
     }
@@ -111,7 +110,7 @@ public partial class HttpDataLoader
 	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public async Task<DataResult> GetAsync(string url, string traceId = null)
+	public async Task<DataResult> GetAsync(string url, string? traceId = null)
     {
         return await GetAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory));
     }
@@ -123,7 +122,7 @@ public partial class HttpDataLoader
 	/// <param name="body">Тело запроса</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public DataResult PostSuccess(string url, byte[] body, string traceId = null)
+	public DataResult PostSuccess(string url, byte[] body, string? traceId = null)
     {
         var result = PostAsync(url, body, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
@@ -139,7 +138,7 @@ public partial class HttpDataLoader
 	/// <param name="body">Тело запроса</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public DataResult Post(string url, byte[] body, string traceId = null)
+	public DataResult Post(string url, byte[] body, string? traceId = null)
     {
         return PostAsync(url, body, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
     }
@@ -151,7 +150,7 @@ public partial class HttpDataLoader
 	/// <param name="body">Тело запроса</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public async Task<DataResult> PostAsync(string url, byte[] body, string traceId = null)
+	public async Task<DataResult> PostAsync(string url, byte[] body, string? traceId = null)
     {
         return await PostAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), body);
     }
@@ -163,7 +162,7 @@ public partial class HttpDataLoader
 	/// <param name="fileName">Имя скачиваемого файла, если не указан то будет выбран в соответствии с settings.StrategyFileName</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public HttpStreamResult GetStreamSuccess(string url, string fileName = null, string traceId = null)
+	public HttpStreamResult GetStreamSuccess(string url, string? fileName = null, string? traceId = null)
     {
         var result = GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
@@ -179,7 +178,7 @@ public partial class HttpDataLoader
 	/// <param name="fileName">Имя скачиваемого файла, если не указан то будет выбран в соответствии с settings.StrategyFileName</param>
 	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
 	/// <returns>Результат скачивания</returns>
-	public HttpStreamResult GetStream(string url, string fileName = null, string traceId = null)
+	public HttpStreamResult GetStream(string url, string? fileName = null, string? traceId = null)
     {
         return GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
     }

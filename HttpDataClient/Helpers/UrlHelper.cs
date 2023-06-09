@@ -13,14 +13,14 @@ internal static class UrlHelper
         "pswd"
     };
 
-    public static string GetHost(string url)
+    public static string? GetHost(string? url)
     {
         return IsCorrectUrl(url)
-            ? new Uri(url).Host
+            ? new Uri(url!).Host
             : null;
     }
 
-    private static bool IsCorrectUrl(string url)
+    private static bool IsCorrectUrl(string? url)
     {
         return Uri.TryCreate(url, UriKind.Absolute, out _);
     }

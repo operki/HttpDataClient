@@ -7,14 +7,7 @@ internal static class IdGenerator
     private static readonly char[] Base62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".ToCharArray();
     private static readonly Random Random = new();
 
-    public static string GetPrefix(string traceId = null)
-    {
-        return traceId == null
-            ? null
-            : $"[{traceId}] ";
-    }
-
-    public static string GetPrefixAnyway(string traceId = null)
+    public static string? GetPrefix(string? traceId = null)
     {
         return traceId == null
             ? $"[{GetId()}] "
