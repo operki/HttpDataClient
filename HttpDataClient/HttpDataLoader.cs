@@ -8,7 +8,7 @@ using HttpDataClient.Results;
 namespace HttpDataClient;
 
 /// <summary>
-///     Загрузчик данных, оперирует get и post запросами
+///     Http data loader, works with get and post requests
 /// </summary>
 public partial class HttpDataLoader
 {
@@ -29,14 +29,14 @@ public partial class HttpDataLoader
     public CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
 
 	/// <summary>
-	///     Обычный get-запрос
+	///     Simple get request
 	/// </summary>
-	/// <param name="onceLogProvider">Лог загрузчика</param>
-	/// <param name="onceMetricProvider">Метрики загрузчика</param>
-	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
-	/// <param name="settings">Настройки для HttpDataFactory</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="settings">Custom settings for HttpDataFactory</param>
+	/// <param name="onceLogProvider">Provider for logs, can be null</param>
+	/// <param name="onceMetricProvider">Provider for metrics, can be null</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public static DataResult JustGet(string url, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
@@ -44,14 +44,14 @@ public partial class HttpDataLoader
     }
 
 	/// <summary>
-	///     Get-запрос, при неудаче бросает Exception
+	///     Simple get request, if failed throw exception
 	/// </summary>
-	/// <param name="onceLogProvider">Лог загрузчика</param>
-	/// <param name="onceMetricProvider">Метрики загрузчика</param>
-	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
-	/// <param name="settings">Настройки для HttpDataFactory</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="settings">Custom settings for HttpDataFactory</param>
+	/// <param name="onceLogProvider">Provider for logs, can be null</param>
+	/// <param name="onceMetricProvider">Provider for metrics, can be null</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public static DataResult JustGetSuccess(string url, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
@@ -63,15 +63,15 @@ public partial class HttpDataLoader
     }
 
 	/// <summary>
-	///     Обычный post-запрос
+	///     Simple post request
 	/// </summary>
-	/// <param name="onceLogProvider">Лог загрузчика</param>
-	/// <param name="onceMetricProvider">Метрики загрузчика</param>
-	/// <param name="url">Ссылка на скачивание, может быть без хоста если он указан в settings.BaseUrl</param>
-	/// <param name="body">Тело запроса</param>
-	/// <param name="settings">Настройки для HttpDataFactory</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="body">Body of request</param>
+	/// <param name="settings">Custom settings for HttpDataFactory</param>
+	/// <param name="onceLogProvider">Provider for logs, can be null</param>
+	/// <param name="onceMetricProvider">Provider for metrics, can be null</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public static DataResult JustPost(string url, byte[] body, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
@@ -79,11 +79,11 @@ public partial class HttpDataLoader
     }
 
 	/// <summary>
-	///     Обычный get-запрос, при неудаче бросает Exception
+	///     Simple get request, if failed throw exception
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public DataResult GetSuccess(string url, string? traceId = null)
     {
         var result = GetAsync(url, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -94,34 +94,34 @@ public partial class HttpDataLoader
     }
 
 	/// <summary>
-	///     Обычный get-запрос
+	///     Simple get request
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public DataResult Get(string url, string? traceId = null)
     {
         return GetAsync(url, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
-	///     Асинхронный get-запрос
+	///     Simple async get request
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public async Task<DataResult> GetAsync(string url, string? traceId = null)
     {
         return await GetAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory));
     }
 
 	/// <summary>
-	///     Обычный post-запрос
+	///     Simple post request, if failed throw exception
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="body">Тело запроса</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="body">Body of request</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public DataResult PostSuccess(string url, byte[] body, string? traceId = null)
     {
         var result = PostAsync(url, body, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -132,36 +132,36 @@ public partial class HttpDataLoader
     }
 
 	/// <summary>
-	///     Обычный post-запрос
+	///     Simple post request
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="body">Тело запроса</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="body">Body of request</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public DataResult Post(string url, byte[] body, string? traceId = null)
     {
         return PostAsync(url, body, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
-	///     Асинхронный post-запрос
+	///     Simple async post request
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="body">Тело запроса</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="body">Body of request</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download result</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string? traceId = null)
     {
         return await PostAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), body);
     }
 
 	/// <summary>
-	///     Get-запрос, возвращающий Stream, бросает Exception при неудаче
+	///     Simple get request, returns stream of data, if failed throw exception
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="fileName">Имя скачиваемого файла, если не указан то будет выбран в соответствии с settings.StrategyFileName</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="fileName">Name of download file, if null will be sets depends on settings.StrategyFileName</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download stream result</returns>
 	public HttpStreamResult GetStreamSuccess(string url, string? fileName = null, string? traceId = null)
     {
         var result = GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -172,12 +172,12 @@ public partial class HttpDataLoader
     }
 
 	/// <summary>
-	///     Get-запрос, возвращающий Stream
+	///     Simple get request, returns stream of data
 	/// </summary>
-	/// <param name="url">Ссылка на скачивание, хоста либо нет либо он должен совпадать с указанным в settings.BaseUrl</param>
-	/// <param name="fileName">Имя скачиваемого файла, если не указан то будет выбран в соответствии с settings.StrategyFileName</param>
-	/// <param name="traceId">Префикс для логов, будет присвоен автоматически если не указан</param>
-	/// <returns>Результат скачивания</returns>
+	/// <param name="url">Download url, can be without host if he exists in settings.BaseUrl</param>
+	/// <param name="fileName">Name of download file, if null will be sets depends on settings.StrategyFileName</param>
+	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
+	/// <returns>Download stream result</returns>
 	public HttpStreamResult GetStream(string url, string? fileName = null, string? traceId = null)
     {
         return GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
