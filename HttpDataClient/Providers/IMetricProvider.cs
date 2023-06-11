@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Environment.Metrics;
+﻿namespace HttpDataClient.Providers;
 
 public interface IMetricProvider
 {

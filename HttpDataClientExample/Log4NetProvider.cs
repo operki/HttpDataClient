@@ -1,4 +1,4 @@
-﻿using HttpDataClient.Environment.Logs;
+﻿using HttpDataClient.Providers;
 using log4net;
 
 namespace HttpDataClientExample;

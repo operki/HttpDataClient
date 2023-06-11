@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using HttpDataClient.Environment.Metrics;
+using HttpDataClient.Providers;
 using log4net;
 
 namespace HttpDataClientExample;

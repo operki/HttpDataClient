@@ -1,9 +1,9 @@
 ﻿using System.Net;
-using HttpDataClient.Environment.Logs;
-using HttpDataClient.Environment.Metrics;
 using HttpDataClient.Helpers;
+using HttpDataClient.Providers;
 using HttpDataClient.Requests;
 using HttpDataClient.Results;
+using HttpDataClient.Settings;
 
 namespace HttpDataClient;
 

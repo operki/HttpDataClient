@@ -1,5 +1,6 @@
 using FluentAssertions;
 using HttpDataClient;
+using HttpDataClient.Settings;
 using NUnit.Framework;
 
 namespace HttpDataClientTests;
@@ -74,5 +75,4 @@ public class Tests
     private HttpDataLoader httpDataLoader;
     private byte[] testPicture;
 #pragma warning restore CS8618
-
 }

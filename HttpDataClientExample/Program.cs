@@ -1,4 +1,5 @@
 ﻿using HttpDataClient;
+using HttpDataClient.Settings;
 using HttpDataClientExample;
 using log4net;
 using log4net.Config;

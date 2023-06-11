@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using HttpDataClient.Environment.Logs;
 using HttpDataClient.Helpers;
+using HttpDataClient.Providers;
 
 namespace HttpDataClient.LoadStat;
 

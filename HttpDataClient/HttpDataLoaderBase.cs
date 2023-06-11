@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using HttpDataClient.Environment.Logs;
-using HttpDataClient.Environment.Metrics;
 using HttpDataClient.Helpers;
+using HttpDataClient.Providers;
 using HttpDataClient.Requests;
 using HttpDataClient.Results;
+using HttpDataClient.Settings;
 
 namespace HttpDataClient;
 

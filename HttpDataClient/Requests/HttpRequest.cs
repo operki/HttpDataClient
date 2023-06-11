@@ -1,6 +1,6 @@
-﻿using HttpDataClient.Environment.Logs;
-using HttpDataClient.Environment.Metrics;
-using HttpDataClient.LoadStat;
+﻿using HttpDataClient.LoadStat;
+using HttpDataClient.Providers;
+using HttpDataClient.Settings;
 
 namespace HttpDataClient.Requests;
 

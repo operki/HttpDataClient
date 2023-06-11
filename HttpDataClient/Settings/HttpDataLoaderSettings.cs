@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using HttpDataClient.Environment.Logs;
 using HttpDataClient.LoadStat;
+using HttpDataClient.Providers;
 
-namespace HttpDataClient;
+namespace HttpDataClient.Settings;
 
 /// <summary>
 ///     Настройки для HttpClientFactory
