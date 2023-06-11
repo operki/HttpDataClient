@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.LoadStat;
+﻿namespace HttpDataClient.Settings.LoadStat;
 
 internal enum LoadStatType
 {

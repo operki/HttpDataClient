@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using HttpDataClient.LoadStat;
 using HttpDataClient.Providers;
+using HttpDataClient.Settings.LoadStat;
 
 namespace HttpDataClient.Settings;
 
 /// <summary>
-///     Настройки для HttpClientFactory
+///     Settings for HttpClientFactory and HttpDataLoader
 /// </summary>
 public class HttpDataLoaderSettings
 {
@@ -41,7 +41,7 @@ public class HttpDataLoaderSettings
 
 
 	/// <summary>
-	///     Добавляет префикс к запросам с  относительными путями. Если указан то при попытке скачивания данных по урлу с отличающимся хостом будет бросать Exception
+	///		Add prefix to query requests. If baseUrl exists and base host in url is different will throw exception
 	/// </summary>
 	public string? BaseUrl
     {
@@ -55,85 +55,87 @@ public class HttpDataLoaderSettings
     }
 
 	/// <summary>
-	///     Подсчет статистики загрузки источника, если указан BaseUrl
+	///     If baseUrl exists calculate stats for loading source host
 	/// </summary>
 	internal LoadStatCalc? LoadStatCalc { get; private set; }
 
 	/// <summary>
-	///     Стратегия именования файла при скачивании на диск через методы, возвращающие HttpStreamResult
-	///     PathGet - файл на диске будет назван через Path.GetFileName(url), позволяет докачивать файлы при обрыве соединения
-	///     Random - файл на диске будет назван случайно, позволяет избегать ошибок при параллельном скачивании, например '01.01.2020\data.xml' и '01.01.2021\data.xml'
-	///     Specify - требует при каждом запросе на скачивание указывать имя файла
+	///     Strategy of naming file for downloads with methods returns HttpStreamResult
+	///     PathGet - file will be named used Path.GetFileName(url), can download same file then connection lost
+	///     Random - file will be named randomly, can avoid errors with parallel downloading, like: '01.01.2020\data.xml' and '05.06.2021\data.xml'
+	///     Specify - require name of file for every request
 	/// </summary>
 	public DownloadStrategyFileName StrategyFileName { get; set; } = DownloadStrategyFileName.PathGet;
 
 	/// <summary>
-	///     Разрешает скачивать только по защищенному протоколу https://, не учитывается если указан Proxy
+	///     Allow download only with https://
 	/// </summary>
 	public bool OnlyHttps { get; set; } = true;
 
 	/// <summary>
-	///     Проксирование запросов
+	///     Proxy for all requests
 	/// </summary>
 	public IWebProxy? Proxy { get; set; } = null;
 
+	/// <summary>
+	///     Timeout for one internal request
+	/// </summary>
     public int DownloadTimeout { get; set; } = DownloadTimeoutDefault;
 
 	/// <summary>
-	///     true - использовать стандартные надстройки над HttpClient, имитирующие поведение браузера
-	///     false - не использовать такие настройки, пригодится при обращении по апи
+	///     true - use standard settings for HttpClient, imitate chrome web browser
+	///     false - don't use standard settings for HttpClient, use it for some special requests or requests to api
 	/// </summary>
 	public bool UseDefaultBrowserSettings { get; set; } = true;
 
 	/// <summary>
-	///     Контейнер для куков, используется при инициализации клиента
+	///     Using in initialize client
 	/// </summary>
 	public CookieContainer? CookieContainer { get; set; } = null;
 
 	/// <summary>
-	///     Локальный путь к кукам, применяется при инициализации если не указан CookieContainer и при сохранении куков в Dispose
+	///     Local path to cookies, apply on initialize if CookieContainer not specified and for save cookies then Dispose
 	/// </summary>
 	public string? CookiesPath { get; set; }
 
 	/// <summary>
-	///     Сертификат сервера, не учитывается если указан SslValidation
+	///     Custom server certificate, don't apply if exists special SslValidation
 	/// </summary>
 	public X509Certificate2? ServerCert { get; set; } = null;
 
 	/// <summary>
-	///     Валидация запроса с учетом сертификата
+	///     Response validation
 	/// </summary>
 	public Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool>? SslValidation { get; set; } = null;
 
 	/// <summary>
-	///     Модификация HttpClientHandler, применяется разово при инициализации HttpClientFactory
+	///     Modification for HttpClientHandler, using one time with initialize HttpClientFactory
 	/// </summary>
 	public Action<HttpClientHandler>? ModifyClientHandler { get; set; } = null;
 
 	/// <summary>
-	///     Модификация HttpDataLoader, применяется разово при инициализации HttpClientFactory
+	///     Modification for HttpClient, using one time with initialize HttpClientFactory
 	/// </summary>
 	public Action<HttpClient>? ModifyClient { get; set; } = null;
 
 	/// <summary>
-	///     Модификация HttpDataLoader, применяется разово при post-запросах
-	///     Позволяет, например, указывать ContentType
+	///     Modification for HttpClient, using one time for every post request. In example, you can specify ContentType like this:
 	///     content => content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded")
 	/// </summary>
 	public Action<ByteArrayContent>? ModifyContent { get; set; } = null;
 
 	/// <summary>
-	///     Креды для HttpClientHandler, применяется разово при инициализации HttpClientFactory
+	///     Credentials for HttpClientHandler, using one time with initialize HttpClientFactory
 	/// </summary>
 	public ICredentials? Credentials { get; set; } = null;
 
 	/// <summary>
-	///     Задержка перед отправкой запроса, помогает ограничить траффик к источнику, можно менять после инициализации
+	///     Timeout before send request, can limit traffic to source host, can be changed after initialize
 	/// </summary>
 	public int PreLoadTimeout { get; set; } = PreLoadTimeoutDefault;
 
 	/// <summary>
-	///     Количество попыток до возврата ошибки скачивания, можно менять после инициализации
+	///     Retries count before request returns error, can be changed after initialize
 	/// </summary>
 	public int RetriesCount { get; set; } = RetriesCountDefault;
 }

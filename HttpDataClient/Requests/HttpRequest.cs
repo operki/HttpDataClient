@@ -1,6 +1,6 @@
-﻿using HttpDataClient.LoadStat;
-using HttpDataClient.Providers;
+﻿using HttpDataClient.Providers;
 using HttpDataClient.Settings;
+using HttpDataClient.Settings.LoadStat;
 
 namespace HttpDataClient.Requests;
 

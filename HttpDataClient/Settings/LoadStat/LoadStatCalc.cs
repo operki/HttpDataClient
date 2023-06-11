@@ -2,7 +2,7 @@
 using HttpDataClient.Helpers;
 using HttpDataClient.Providers;
 
-namespace HttpDataClient.LoadStat;
+namespace HttpDataClient.Settings.LoadStat;
 
 internal class LoadStatCalc
 {

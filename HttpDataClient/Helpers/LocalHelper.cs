@@ -33,11 +33,6 @@ internal static class LocalHelper
         }
     }
 
-    /// <summary>
-    ///     Убирает из файла непечатаемые символы для локального сохранения
-    /// </summary>
-    /// <param name="fileName">Файл для изменения</param>
-    /// <returns>Файл для локального сохранения</returns>
     public static string GetSafeFileName(string fileName)
     {
         return RemoveInvalidRegex.Replace(Path.GetFileName(fileName), "");
