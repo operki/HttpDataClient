@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Settings;
+﻿namespace HttpDataClient.Consts;
 
 public enum DownloadStrategyFileName
 {

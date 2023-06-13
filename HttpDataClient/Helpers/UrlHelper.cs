@@ -13,6 +13,28 @@ internal static class UrlHelper
         "pswd"
     };
 
+    public static void UrlCheckOrThrow(string? baseSite, string url, bool onlyHttps)
+    {
+        var uri = HttpDataFactory.GetUri(url, out var uriKind);
+        if(!baseSite.IsSignificant())
+        {
+            if(uriKind == UriKind.Relative)
+                throw new Exception($"Can't get request with '{url}', need absolute path");
+
+            if(uri.Scheme == Uri.UriSchemeHttps)
+                return;
+
+            if(onlyHttps)
+                throw new Exception($"Can't get request with '{url}', only {Uri.UriSchemeHttps} allowed");
+            if(uri.Scheme != Uri.UriSchemeHttp)
+                throw new Exception($"Can't get request with '{url}', only {Uri.UriSchemeHttp} and {Uri.UriSchemeHttps} allowed");
+        }
+        else if(uriKind == UriKind.Absolute && uri.GetLeftPart(UriPartial.Authority) != baseSite)
+        {
+            throw new Exception($"Can't get request with '{url}', only site '{baseSite}' allowed");
+        }
+    }
+
     public static string? GetHost(string? url)
     {
         return IsCorrectUrl(url)

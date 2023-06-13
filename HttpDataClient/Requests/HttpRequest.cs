@@ -15,7 +15,7 @@ internal struct HttpRequest
     public bool OnlyHttps { get; }
     public int PreLoadTimeout { get; }
     public int RetriesCount { get; }
-    public Func<Exception, bool> StopDownload { get; } = exception => exception.ToString().Contains("416");
+    public Func<Exception, bool>? StopDownload { get; } = exception => exception.ToString().Contains("416");
 
     public HttpRequest(ILogProvider? logProvider, IMetricProvider? metricProvider, HttpDataLoaderSettings settings, string? traceId, string url, HttpDataFactory? httpDataFactory = null)
     {

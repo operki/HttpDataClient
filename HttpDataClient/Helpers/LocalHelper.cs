@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using HttpDataClient.Consts;
 
 namespace HttpDataClient.Helpers;
 
@@ -31,6 +32,20 @@ internal static class LocalHelper
         {
             throw new Exception($"Can't clear folder '{dir}'. Exception: {e}");
         }
+    }
+
+    public static string GetFileName(DownloadStrategyFileName strategyFileName, string url, string? fileName)
+    {
+        if(fileName.IsSignificant())
+            return Path.Combine(GlobalConsts.TempDir, GetSafeFileName(fileName!));
+
+        return strategyFileName switch
+        {
+            DownloadStrategyFileName.PathGet => Path.Combine(GlobalConsts.TempDir, GetSafeFileName(url)),
+            DownloadStrategyFileName.Random => Path.Combine(GlobalConsts.TempDir, Guid.NewGuid().ToString()),
+            DownloadStrategyFileName.Specify => throw new Exception("FileName must be significant or use other download strategy"),
+            _ => throw new ArgumentOutOfRangeException(nameof(strategyFileName), strategyFileName, null)
+        };
     }
 
     public static string GetSafeFileName(string fileName)

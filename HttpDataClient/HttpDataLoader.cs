@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Text.Json;
+using HttpDataClient.Consts;
 using HttpDataClient.Helpers;
 using HttpDataClient.Providers;
 using HttpDataClient.Requests;
@@ -10,15 +12,23 @@ namespace HttpDataClient;
 /// <summary>
 ///     Http data loader, works with get and post requests
 /// </summary>
-public partial class HttpDataLoader
+public class HttpDataLoader
 {
+    private const int SkipFilesWhenClear = 20;
+    private readonly string? cookiesPath;
+    private readonly HttpDataFactory httpDataFactory;
+    private readonly ILogProvider? logProvider;
+    private readonly IMetricProvider? metricProvider;
+    private readonly HttpDataLoaderSettings settings;
+    private readonly DownloadStrategyFileName strategyFileName;
+
     public HttpDataLoader(HttpDataLoaderSettings? settings = null, ILogProvider? logProvider = null, IMetricProvider? metricProvider = null)
     {
         this.logProvider = logProvider;
         this.metricProvider = metricProvider;
         this.settings = settings ?? new HttpDataLoaderSettings();
         strategyFileName = this.settings.StrategyFileName;
-        LocalHelper.TryClearDir(TempDir, strategyFileName == DownloadStrategyFileName.Random
+        LocalHelper.TryClearDir(GlobalConsts.TempDir, strategyFileName == DownloadStrategyFileName.Random
             ? 0
             : SkipFilesWhenClear);
 
@@ -26,7 +36,14 @@ public partial class HttpDataLoader
         httpDataFactory = new HttpDataFactory(this.settings);
     }
 
-    public CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
+    private CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
+
+    ~HttpDataLoader()
+    {
+        metricProvider?.Flush();
+        LocalHelper.TryClearDir(GlobalConsts.TempDir);
+        SaveCookies();
+    }
 
 	/// <summary>
 	///     Simple get request
@@ -40,7 +57,7 @@ public partial class HttpDataLoader
 	public static DataResult JustGet(string url, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return GetAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
+        return HttpDataLoaderInternal.GetAsync(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -55,7 +72,7 @@ public partial class HttpDataLoader
 	public static DataResult JustGetSuccess(string url, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        var result = GetAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
+        var result = HttpDataLoaderInternal.GetAsync(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
             throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
 
@@ -75,7 +92,7 @@ public partial class HttpDataLoader
 	public static DataResult JustPost(string url, byte[] body, HttpDataLoaderSettings? settings = null, ILogProvider? onceLogProvider = null, IMetricProvider? onceMetricProvider = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return PostAsyncInternal(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
+        return HttpDataLoaderInternal.PostAsync(new HttpRequest(onceLogProvider, onceMetricProvider, settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -112,7 +129,7 @@ public partial class HttpDataLoader
 	/// <returns>Download result</returns>
 	public async Task<DataResult> GetAsync(string url, string? traceId = null)
     {
-        return await GetAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory));
+        return await HttpDataLoaderInternal.GetAsync(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory));
     }
 
 	/// <summary>
@@ -152,7 +169,7 @@ public partial class HttpDataLoader
 	/// <returns>Download result</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string? traceId = null)
     {
-        return await PostAsyncInternal(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), body);
+        return await HttpDataLoaderInternal.PostAsync(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), body);
     }
 
 	/// <summary>
@@ -181,5 +198,19 @@ public partial class HttpDataLoader
 	public HttpStreamResult GetStream(string url, string? fileName = null, string? traceId = null)
     {
         return GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
+    }
+
+    private void SaveCookies()
+    {
+        if(cookiesPath == null)
+            return;
+
+        using var outStream = File.Create(cookiesPath);
+        JsonSerializer.Serialize(outStream, httpDataFactory.ClientHandler.CookieContainer);
+    }
+
+    private async Task<HttpStreamResult> GetStreamAsync(string url, string? fileName = null, string? traceId = null)
+    {
+        return await HttpDataLoaderInternal.GetStreamAsync(new HttpRequest(logProvider, metricProvider, settings, traceId, url, httpDataFactory), strategyFileName, fileName);
     }
 }

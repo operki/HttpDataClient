@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using HttpDataClient.Consts;
 using HttpDataClient.Providers;
 using HttpDataClient.Settings.LoadStat;
 
@@ -41,7 +42,7 @@ public class HttpDataLoaderSettings
 
 
 	/// <summary>
-	///		Add prefix to query requests. If baseUrl exists and base host in url is different will throw exception
+	///     Add prefix to query requests. If baseUrl exists and base host in url is different will throw exception
 	/// </summary>
 	public string? BaseUrl
     {
@@ -80,7 +81,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Timeout for one internal request
 	/// </summary>
-    public int DownloadTimeout { get; set; } = DownloadTimeoutDefault;
+	public int DownloadTimeout { get; set; } = DownloadTimeoutDefault;
 
 	/// <summary>
 	///     true - use standard settings for HttpClient, imitate chrome web browser
