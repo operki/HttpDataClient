@@ -9,8 +9,6 @@ namespace HttpDataClient;
 
 internal static class HttpDataLoaderInternal
 {
-    private const int MaxReadLength = 1048576 * 1024;
-
     public static async Task<DataResult> GetAsync(HttpRequest httpRequest)
     {
         var logProvider = httpRequest.LogProvider;
@@ -102,8 +100,8 @@ internal static class HttpDataLoaderInternal
                 {
                     var currentRequest = new HttpRequestMessage(HttpMethod.Get, url);
                     currentRequest.Headers.Range = resumeDownload
-                        ? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + MaxReadLength)
-                        : new RangeHeaderValue(0, MaxReadLength);
+                        ? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + GlobalConsts.HttpDataLoaderMaxReadLength)
+                        : new RangeHeaderValue(0, GlobalConsts.HttpDataLoaderMaxReadLength);
 
                     return httpDataFactory.Client.SendAsync(currentRequest);
                 }
@@ -135,7 +133,7 @@ internal static class HttpDataLoaderInternal
             {
                 using(var fileWriteStream = File.Open(tmpFileName, FileMode.Append))
                 {
-                    var data = new byte[MaxReadLength];
+                    var data = new byte[GlobalConsts.HttpDataLoaderMaxReadLength];
                     var dataLength = await httpReadStream.Result.ReadAsync(data, 0, data.Length);
                     fileWriteStream.Write(data, 0, dataLength);
                     totalSize += dataLength;

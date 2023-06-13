@@ -14,7 +14,6 @@ namespace HttpDataClient;
 /// </summary>
 public class HttpDataLoader
 {
-    private const int SkipFilesWhenClear = 20;
     private readonly string? cookiesPath;
     private readonly HttpDataFactory httpDataFactory;
     private readonly ILogProvider? logProvider;
@@ -28,9 +27,7 @@ public class HttpDataLoader
         this.metricProvider = metricProvider;
         this.settings = settings ?? new HttpDataLoaderSettings();
         strategyFileName = this.settings.StrategyFileName;
-        LocalHelper.TryClearDir(GlobalConsts.TempDir, strategyFileName == DownloadStrategyFileName.Random
-            ? 0
-            : SkipFilesWhenClear);
+        LocalHelper.TryClearDir(strategyFileName);
 
         cookiesPath = this.settings.CookiesPath;
         httpDataFactory = new HttpDataFactory(this.settings);
@@ -41,7 +38,7 @@ public class HttpDataLoader
     ~HttpDataLoader()
     {
         metricProvider?.Flush();
-        LocalHelper.TryClearDir(GlobalConsts.TempDir);
+        LocalHelper.TryClearDir();
         SaveCookies();
     }
 

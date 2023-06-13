@@ -8,8 +8,6 @@ namespace HttpDataClient;
 
 internal static class HttpDataLoaderRetries
 {
-    private const int RetriesStopGrowing = 8;
-
     public static async Task<HttpResponse> GetAsync(HttpRequest httpRequest, Func<Task<HttpResponseMessage>> httpGetter)
     {
         var logProvider = httpRequest.LogProvider;
@@ -24,7 +22,7 @@ internal static class HttpDataLoaderRetries
         var stopDownload = httpRequest.StopDownload;
 
         var tracePrefix = IdGenerator.GetPrefix(traceId);
-        Directory.CreateDirectory(GlobalConsts.TempDir);
+        LocalHelper.CreateTempDir();
         var response = new HttpResponse(HttpResponseResult.Fail, null, null);
         try
         {
@@ -75,7 +73,7 @@ internal static class HttpDataLoaderRetries
                         }
                         else
                         {
-                            sleepTime = preLoadTimeout * ((i > RetriesStopGrowing ? RetriesStopGrowing : i) + 2);
+                            sleepTime = preLoadTimeout * ((i > GlobalConsts.HttpDataLoaderRetriesStopGrowing ? GlobalConsts.HttpDataLoaderRetriesStopGrowing : i) + 2);
                             logProvider?.Error($"{tracePrefix}Failed '{url.HideSecrets()}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
                         }
                     }

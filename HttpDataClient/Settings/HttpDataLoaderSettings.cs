@@ -12,9 +12,6 @@ namespace HttpDataClient.Settings;
 /// </summary>
 public class HttpDataLoaderSettings
 {
-    public const int DownloadTimeoutDefault = 1_000 * 60 * 15;
-    public const int PreLoadTimeoutDefault = 1_000;
-    public const int RetriesCountDefault = 5;
     private readonly ILogProvider? logProvider;
     private string? baseUrl;
 
@@ -81,7 +78,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Timeout for one internal request
 	/// </summary>
-	public int DownloadTimeout { get; set; } = DownloadTimeoutDefault;
+	public int DownloadTimeout { get; set; } = GlobalConsts.HttpDataLoaderSettingsDownloadTimeoutDefault;
 
 	/// <summary>
 	///     true - use standard settings for HttpClient, imitate chrome web browser
@@ -133,10 +130,10 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Timeout before send request, can limit traffic to source host, can be changed after initialize
 	/// </summary>
-	public int PreLoadTimeout { get; set; } = PreLoadTimeoutDefault;
+	public int PreLoadTimeout { get; set; } = GlobalConsts.HttpDataLoaderSettingsPreLoadTimeoutDefault;
 
 	/// <summary>
 	///     Retries count before request returns error, can be changed after initialize
 	/// </summary>
-	public int RetriesCount { get; set; } = RetriesCountDefault;
+	public int RetriesCount { get; set; } = GlobalConsts.HttpDataLoaderSettingsRetriesCountDefault;
 }

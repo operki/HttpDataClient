@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using HttpDataClient.Consts;
 using HttpDataClient.Helpers;
 using HttpDataClient.Providers;
 
@@ -6,7 +7,6 @@ namespace HttpDataClient.Settings.LoadStat;
 
 internal class LoadStatCalc
 {
-    private const int MaxCapacity = 100000;
 #pragma warning disable CS8618
     private static Timer logStatTimer;
 #pragma warning restore CS8618
@@ -40,10 +40,10 @@ internal class LoadStatCalc
             log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
             var averageLoad = LoadStatMinutes.Values.Sum(range => range.Count) / LoadStatMinutes.Count;
             log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per minutes is {averageLoad}");
-            if(LoadStatMinutes.Count > MaxCapacity)
+            if(LoadStatMinutes.Count > GlobalConsts.LoadStatCalcMaxCapacity)
                 LoadStatMinutes = new ConcurrentDictionary<string, LoadStatRange>(LoadStatMinutes
                     .OrderBy(kvp => kvp)
-                    .Skip(MaxCapacity / 2));
+                    .Skip(GlobalConsts.LoadStatCalcMaxCapacity / 2));
 
             if(currentDt < startDt.AddHours(1))
                 return;
