@@ -12,6 +12,7 @@ internal struct HttpRequest
     public string? TraceId { get; }
     public string Url { get; }
     public bool OnlyHttps { get; }
+    public bool HideSecretsFromUrls { get; }
     public int PreLoadTimeout { get; }
     public int RetriesCount { get; }
     public Func<Exception, bool>? StopDownload { get; } = exception => exception.ToString().Contains("416");
@@ -21,9 +22,11 @@ internal struct HttpRequest
         LogProvider = settings.LogProvider;
         MetricProvider = settings.MetricProvider;
         HttpDataFactory = httpDataFactory ?? new HttpDataFactory(settings);
+        LoadStatCalc = loadStatCalc;
         TraceId = traceId;
         Url = url;
         OnlyHttps = settings.OnlyHttps;
+        HideSecretsFromUrls = settings.HideSecretsFromUrls;
         PreLoadTimeout = settings.PreLoadTimeout;
         RetriesCount = settings.RetriesCount;
     }

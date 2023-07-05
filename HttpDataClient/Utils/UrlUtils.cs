@@ -47,9 +47,9 @@ internal static class UrlUtils
         return Uri.TryCreate(url, UriKind.Absolute, out _);
     }
 
-    public static string HideSecrets(this string url)
+    public static string HideSecrets(this string url, bool needHideSecretsFromUrls)
     {
-        if(!url.IsSignificant())
+        if(!needHideSecretsFromUrls || !url.IsSignificant())
             return url;
 
         var queryParams = HttpUtility.ParseQueryString(url);

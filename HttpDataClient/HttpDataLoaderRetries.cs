@@ -17,6 +17,7 @@ internal static class HttpDataLoaderRetries
         var traceId = httpRequest.TraceId;
         var url = httpRequest.Url;
         var onlyHttps = httpRequest.OnlyHttps;
+        var hideSecrets = httpRequest.HideSecretsFromUrls;
         var preLoadTimeout = httpRequest.PreLoadTimeout;
         var retriesCount = httpRequest.RetriesCount;
         var stopDownload = httpRequest.StopDownload;
@@ -69,12 +70,12 @@ internal static class HttpDataLoaderRetries
                         if(stopDownload != null && stopDownload.Invoke(exception))
                         {
                             response.Result = HttpResponseResult.StopException;
-                            logProvider?.Info($"{tracePrefix}Stop '{url.HideSecrets()}': elapsed {sw.Elapsed}", exception);
+                            logProvider?.Info($"{tracePrefix}Stop '{url.HideSecrets(hideSecrets)}': elapsed {sw.Elapsed}", exception);
                         }
                         else
                         {
                             sleepTime = preLoadTimeout * ((i > GlobalConsts.HttpDataLoaderRetriesStopGrowing ? GlobalConsts.HttpDataLoaderRetriesStopGrowing : i) + 2);
-                            logProvider?.Error($"{tracePrefix}Failed '{url.HideSecrets()}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
+                            logProvider?.Error($"{tracePrefix}Failed '{url.HideSecrets(hideSecrets)}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
                         }
                     }
                 }
@@ -84,7 +85,7 @@ internal static class HttpDataLoaderRetries
         }
         catch(Exception e)
         {
-            logProvider?.Fatal($"{tracePrefix}Failed '{url.HideSecrets()}'", e);
+            logProvider?.Fatal($"{tracePrefix}Failed '{url.HideSecrets(hideSecrets)}'", e);
             return response;
         }
     }

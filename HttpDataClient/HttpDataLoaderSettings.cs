@@ -40,6 +40,11 @@ public class HttpDataLoaderSettings
 	public bool OnlyHttps { get; set; } = true;
 
 	/// <summary>
+	///     Hide some params from urls to log, params can be substring of this: key, token, secret, pass or pswd
+	/// </summary>
+	public bool HideSecretsFromUrls { get; set; } = true;
+
+	/// <summary>
 	///     Proxy for all requests
 	/// </summary>
 	public IWebProxy? Proxy { get; set; } = null;
