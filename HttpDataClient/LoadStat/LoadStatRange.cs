@@ -1,6 +1,6 @@
 ﻿using HttpDataClient.Helpers;
 
-namespace HttpDataClient.Settings.LoadStat;
+namespace HttpDataClient.LoadStat;
 
 internal class LoadStatRange
 {

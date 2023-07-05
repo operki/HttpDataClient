@@ -3,7 +3,7 @@ using HttpDataClient.Consts;
 using HttpDataClient.Helpers;
 using HttpDataClient.Providers;
 
-namespace HttpDataClient.Settings.LoadStat;
+namespace HttpDataClient.LoadStat;
 
 internal class LoadStatCalc
 {

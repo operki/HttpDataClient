@@ -2,7 +2,6 @@
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
-using HttpDataClient.Settings;
 
 namespace HttpDataClient;
 

@@ -3,59 +3,29 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using HttpDataClient.Consts;
 using HttpDataClient.Providers;
-using HttpDataClient.Settings.LoadStat;
 
-namespace HttpDataClient.Settings;
+namespace HttpDataClient;
 
 /// <summary>
 ///     Settings for HttpClientFactory and HttpDataLoader
 /// </summary>
 public class HttpDataLoaderSettings
 {
-    private readonly ILogProvider? logProvider;
-    private string? baseUrl;
 
-    public HttpDataLoaderSettings(IReadOnlyDictionary<string, string> settings, ILogProvider? logProvider = null)
-        : this(logProvider)
-    {
-        if(settings.ContainsKey("baseUrl"))
-            BaseUrl = settings["baseUrl"];
-        if(settings.ContainsKey("downloadTimeout"))
-            DownloadTimeout = int.Parse(settings["downloadTimeout"]);
-        if(settings.ContainsKey("cookiesPath"))
-            CookiesPath = settings["cookiesPath"];
-        if(settings.ContainsKey("preLoadTimeout"))
-            PreLoadTimeout = int.Parse(settings["preLoadTimeout"]);
-        if(settings.ContainsKey("retriesCount"))
-            RetriesCount = int.Parse(settings["retriesCount"]);
-    }
+	/// <summary>
+	///     Provider for writing logs
+	/// </summary>
+	public ILogProvider? LogProvider { get; set; }
 
-    public HttpDataLoaderSettings(ILogProvider? logProvider = null)
-    {
-        this.logProvider = logProvider;
-    }
-
-    public HttpDataLoaderSettings() { }
-
+	/// <summary>
+	///     Provider for writing metrics
+	/// </summary>
+	public IMetricProvider? MetricProvider { get; set; }
 
 	/// <summary>
 	///     Add prefix to query requests. If baseUrl exists and base host in url is different will throw exception
 	/// </summary>
-	public string? BaseUrl
-    {
-        get => baseUrl;
-        set
-        {
-            baseUrl = value;
-            if(logProvider != null)
-                LoadStatCalc = new LoadStatCalc(logProvider, baseUrl);
-        }
-    }
-
-	/// <summary>
-	///     If baseUrl exists calculate stats for loading source host
-	/// </summary>
-	internal LoadStatCalc? LoadStatCalc { get; private set; }
+	public string? BaseUrl { get; set; }
 
 	/// <summary>
 	///     Strategy of naming file for downloads with methods returns HttpStreamResult
