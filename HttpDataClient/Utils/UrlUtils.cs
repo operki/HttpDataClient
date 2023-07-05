@@ -1,8 +1,8 @@
 ﻿using System.Web;
 
-namespace HttpDataClient.Helpers;
+namespace HttpDataClient.Utils;
 
-internal static class UrlHelper
+internal static class UrlUtils
 {
     private static readonly List<string> SecretParams = new()
     {

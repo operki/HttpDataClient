@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using HttpDataClient.Consts;
-using HttpDataClient.Helpers;
 using HttpDataClient.Requests;
 using HttpDataClient.Results;
+using HttpDataClient.Utils;
 
 namespace HttpDataClient;
 
@@ -21,12 +21,12 @@ internal static class HttpDataLoaderRetries
         var retriesCount = httpRequest.RetriesCount;
         var stopDownload = httpRequest.StopDownload;
 
-        var tracePrefix = IdGenerator.GetPrefix(traceId);
-        LocalHelper.CreateTempDir();
+        var tracePrefix = IdUtils.GetPrefix(traceId);
+        LocalUtils.CreateTempDir();
         var response = new HttpResponse(HttpResponseResult.Fail, null, null);
         try
         {
-            UrlHelper.UrlCheckOrThrow(httpDataFactory.BaseUrl, url, onlyHttps);
+            UrlUtils.UrlCheckOrThrow(httpDataFactory.BaseUrl, url, onlyHttps);
             var sleepTime = preLoadTimeout;
             for(var i = 0; i < retriesCount; i++)
             {

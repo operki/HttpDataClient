@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using HttpDataClient.Consts;
 
-namespace HttpDataClient.Helpers;
+namespace HttpDataClient.Utils;
 
-internal static class LocalHelper
+internal static class LocalUtils
 {
     private static readonly Regex RemoveInvalidRegex = new($"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))}]");
 

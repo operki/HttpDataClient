@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using HttpDataClient.Consts;
-using HttpDataClient.Helpers;
 using HttpDataClient.Providers;
+using HttpDataClient.Utils;
 
 namespace HttpDataClient.LoadStat;
 
@@ -17,9 +17,9 @@ internal class LoadStatCalc
 
     public LoadStatCalc(ILogProvider log, string? baseUrl)
     {
-        id = IdGenerator.GetId();
+        id = IdUtils.GetId();
         this.log = log;
-        siteHost = UrlHelper.GetHost(baseUrl).ToLowerFirstChar();
+        siteHost = UrlUtils.GetHost(baseUrl).ToLowerFirstChar();
         logStatTimer = new Timer(LogStat, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
         log.Info($"[HttpDataClient.LoadStats.{id}] Start calc load stats");
     }

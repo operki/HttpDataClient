@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using HttpDataClient.Consts;
-using HttpDataClient.Helpers;
 using HttpDataClient.Requests;
 using HttpDataClient.Results;
+using HttpDataClient.Utils;
 
 namespace HttpDataClient;
 
@@ -24,10 +24,10 @@ internal static class HttpDataLoaderInternal
         switch(responseResult)
         {
             case HttpResponseResult.Fail:
-                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Failed get '{url.HideSecrets()}'");
+                logProvider?.Info($"{IdUtils.GetPrefix(traceId)}Failed get '{url.HideSecrets()}'");
                 break;
             case HttpResponseResult.Success:
-                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Get '{url.HideSecrets()}' ({(int)responseMessage!.StatusCode} {responseMessage.StatusCode}): result length {result.Content?.Length}, elapsed {httpResponse.ElapsedTime}");
+                logProvider?.Info($"{IdUtils.GetPrefix(traceId)}Get '{url.HideSecrets()}' ({(int)responseMessage!.StatusCode} {responseMessage.StatusCode}): result length {result.Content?.Length}, elapsed {httpResponse.ElapsedTime}");
                 break;
             case HttpResponseResult.StopException:
                 break;
@@ -58,10 +58,10 @@ internal static class HttpDataLoaderInternal
         switch(responseResult)
         {
             case HttpResponseResult.Fail:
-                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Failed post '{url.HideSecrets()}'");
+                logProvider?.Info($"{IdUtils.GetPrefix(traceId)}Failed post '{url.HideSecrets()}'");
                 break;
             case HttpResponseResult.Success:
-                logProvider?.Info($"{IdGenerator.GetPrefix(traceId)}Post '{url.HideSecrets()}' ({(int)responseMessage!.StatusCode} {responseMessage.StatusCode}): result length {result.Content?.Length}, elapsed {httpResponse.ElapsedTime}");
+                logProvider?.Info($"{IdUtils.GetPrefix(traceId)}Post '{url.HideSecrets()}' ({(int)responseMessage!.StatusCode} {responseMessage.StatusCode}): result length {result.Content?.Length}, elapsed {httpResponse.ElapsedTime}");
                 break;
             case HttpResponseResult.StopException:
                 break;
@@ -79,8 +79,8 @@ internal static class HttpDataLoaderInternal
         var traceId = httpRequest.TraceId;
         var url = httpRequest.Url;
 
-        var tracePrefix = IdGenerator.GetPrefix(traceId);
-        var tmpFileName = LocalHelper.GetFileName(strategyFileName, url, fileName);
+        var tracePrefix = IdUtils.GetPrefix(traceId);
+        var tmpFileName = LocalUtils.GetFileName(strategyFileName, url, fileName);
         long totalSize = 0;
 
         logProvider?.Info($"{tracePrefix}Start download from '{url.HideSecrets()}'...");

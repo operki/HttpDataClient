@@ -16,13 +16,11 @@ internal struct HttpRequest
     public int RetriesCount { get; }
     public Func<Exception, bool>? StopDownload { get; } = exception => exception.ToString().Contains("416");
 
-    public HttpRequest(HttpDataLoaderSettings settings, string? traceId, string url, HttpDataFactory? httpDataFactory = null)
+    public HttpRequest(HttpDataLoaderSettings settings, LoadStatCalc? loadStatCalc, string? traceId, string url, HttpDataFactory? httpDataFactory = null)
     {
         LogProvider = settings.LogProvider;
         MetricProvider = settings.MetricProvider;
         HttpDataFactory = httpDataFactory ?? new HttpDataFactory(settings);
-        if(settings.BaseUrl != null && settings.LogProvider != null)
-            LoadStatCalc = new LoadStatCalc(settings.LogProvider, settings.BaseUrl);
         TraceId = traceId;
         Url = url;
         OnlyHttps = settings.OnlyHttps;

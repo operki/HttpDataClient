@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace HttpDataClient.Helpers;
+namespace HttpDataClient.Utils;
 
-internal static class IdGenerator
+internal static class IdUtils
 {
     private static readonly char[] Base62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".ToCharArray();
     private static readonly Random Random = new();

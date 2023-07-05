@@ -2,6 +2,9 @@
 
 public class DataResult
 {
+    private string? content;
+    private byte[]? data;
+
     public DataResult(HttpResponseMessage? responseMessage)
     {
         ResponseMessage = responseMessage;
@@ -16,7 +19,7 @@ public class DataResult
         {
             try
             {
-                return ResponseMessage?.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                return content ??= ResponseMessage?.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch(Exception)
             {
@@ -31,7 +34,7 @@ public class DataResult
         {
             try
             {
-                return ResponseMessage?.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                return data ??= ResponseMessage?.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch(Exception)
             {

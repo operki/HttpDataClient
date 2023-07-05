@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Helpers;
+﻿namespace HttpDataClient.Utils;
 
 internal static class EnumerableUtils
 {

@@ -1,6 +1,5 @@
 using FluentAssertions;
 using HttpDataClient;
-using HttpDataClient.Settings;
 using NUnit.Framework;
 
 namespace HttpDataClientTests;

@@ -34,9 +34,7 @@ public class HttpStreamResult : IDisposable
 
     public void Dispose()
     {
-        if(Stream != null)
-            ((IDisposable)Stream)?.Dispose();
-        if(ResponseMessage != null)
-            ((IDisposable)ResponseMessage)?.Dispose();
+        ((IDisposable)Stream)?.Dispose();
+        ((IDisposable)ResponseMessage)?.Dispose();
     }
 }

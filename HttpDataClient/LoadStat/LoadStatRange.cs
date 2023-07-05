@@ -1,4 +1,4 @@
-﻿using HttpDataClient.Helpers;
+﻿using HttpDataClient.Utils;
 
 namespace HttpDataClient.LoadStat;
 

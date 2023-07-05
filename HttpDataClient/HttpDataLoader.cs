@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using System.Text.Json;
 using HttpDataClient.Consts;
-using HttpDataClient.Helpers;
+using HttpDataClient.LoadStat;
 using HttpDataClient.Requests;
 using HttpDataClient.Results;
+using HttpDataClient.Utils;
 
 namespace HttpDataClient;
 
@@ -14,6 +15,7 @@ public class HttpDataLoader
 {
     private readonly string? cookiesPath;
     private readonly HttpDataFactory httpDataFactory;
+    private readonly LoadStatCalc? loadStatCalc;
     private readonly HttpDataLoaderSettings settings;
     private readonly DownloadStrategyFileName strategyFileName;
 
@@ -21,10 +23,12 @@ public class HttpDataLoader
     {
         this.settings = settings ?? new HttpDataLoaderSettings();
         strategyFileName = this.settings.StrategyFileName;
-        LocalHelper.TryClearDir(strategyFileName);
+        LocalUtils.TryClearDir(strategyFileName);
 
         cookiesPath = this.settings.CookiesPath;
         httpDataFactory = new HttpDataFactory(this.settings);
+        if(settings.BaseUrl != null && settings.LogProvider != null)
+            loadStatCalc = new LoadStatCalc(settings.LogProvider, settings.BaseUrl);
     }
 
     private CookieContainer CookieContainer => httpDataFactory.ClientHandler.CookieContainer;
@@ -32,7 +36,7 @@ public class HttpDataLoader
     ~HttpDataLoader()
     {
         settings.MetricProvider?.Flush();
-        LocalHelper.TryClearDir();
+        LocalUtils.TryClearDir();
         SaveCookies();
     }
 
@@ -48,7 +52,7 @@ public class HttpDataLoader
 	public static DataResult JustGet(string url, HttpDataLoaderSettings? settings = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return HttpDataLoaderInternal.GetAsync(new HttpRequest(settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
+        return HttpDataLoaderInternal.GetAsync(new HttpRequest(settings, null, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -63,9 +67,9 @@ public class HttpDataLoader
 	public static DataResult JustGetSuccess(string url, HttpDataLoaderSettings? settings = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        var result = HttpDataLoaderInternal.GetAsync(new HttpRequest(settings, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
+        var result = HttpDataLoaderInternal.GetAsync(new HttpRequest(settings, null, traceId, url)).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
-            throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
+            throw new Exception($"{IdUtils.GetPrefix(traceId)}Can't download data from '{url}'");
 
         return result;
     }
@@ -83,7 +87,7 @@ public class HttpDataLoader
 	public static DataResult JustPost(string url, byte[] body, HttpDataLoaderSettings? settings = null, string? traceId = null)
     {
         settings ??= new HttpDataLoaderSettings();
-        return HttpDataLoaderInternal.PostAsync(new HttpRequest(settings, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
+        return HttpDataLoaderInternal.PostAsync(new HttpRequest(settings, null, traceId, url), body).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
 	/// <summary>
@@ -96,7 +100,7 @@ public class HttpDataLoader
     {
         var result = GetAsync(url, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
-            throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
+            throw new Exception($"{IdUtils.GetPrefix(traceId)}Can't download data from '{url}'");
 
         return result;
     }
@@ -120,7 +124,7 @@ public class HttpDataLoader
 	/// <returns>Download result</returns>
 	public async Task<DataResult> GetAsync(string url, string? traceId = null)
     {
-        return await HttpDataLoaderInternal.GetAsync(new HttpRequest(settings, traceId, url, httpDataFactory));
+        return await HttpDataLoaderInternal.GetAsync(new HttpRequest(settings, null, traceId, url, httpDataFactory));
     }
 
 	/// <summary>
@@ -134,7 +138,7 @@ public class HttpDataLoader
     {
         var result = PostAsync(url, body, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
-            throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download post data from '{url}'");
+            throw new Exception($"{IdUtils.GetPrefix(traceId)}Can't download post data from '{url}'");
 
         return result;
     }
@@ -160,7 +164,7 @@ public class HttpDataLoader
 	/// <returns>Download result</returns>
 	public async Task<DataResult> PostAsync(string url, byte[] body, string? traceId = null)
     {
-        return await HttpDataLoaderInternal.PostAsync(new HttpRequest(settings, traceId, url, httpDataFactory), body);
+        return await HttpDataLoaderInternal.PostAsync(new HttpRequest(settings, loadStatCalc, traceId, url, httpDataFactory), body);
     }
 
 	/// <summary>
@@ -174,7 +178,7 @@ public class HttpDataLoader
     {
         var result = GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
         if(!result.IsSuccess)
-            throw new Exception($"{IdGenerator.GetPrefix(traceId)}Can't download data from '{url}'");
+            throw new Exception($"{IdUtils.GetPrefix(traceId)}Can't download data from '{url}'");
 
         return result;
     }
@@ -202,6 +206,6 @@ public class HttpDataLoader
 
     private async Task<HttpStreamResult> GetStreamAsync(string url, string? fileName = null, string? traceId = null)
     {
-        return await HttpDataLoaderInternal.GetStreamAsync(new HttpRequest(settings, traceId, url, httpDataFactory), strategyFileName, fileName);
+        return await HttpDataLoaderInternal.GetStreamAsync(new HttpRequest(settings, loadStatCalc, traceId, url, httpDataFactory), strategyFileName, fileName);
     }
 }

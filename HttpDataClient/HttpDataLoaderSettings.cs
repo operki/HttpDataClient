@@ -11,7 +11,6 @@ namespace HttpDataClient;
 /// </summary>
 public class HttpDataLoaderSettings
 {
-
 	/// <summary>
 	///     Provider for writing logs
 	/// </summary>
