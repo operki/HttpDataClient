@@ -2,8 +2,8 @@
 
 internal enum LoadStatType
 {
-    Unknown,
-    Minutes,
-    Hours,
-    Days
+	Unknown,
+	Minutes,
+	Hours,
+	Days
 }

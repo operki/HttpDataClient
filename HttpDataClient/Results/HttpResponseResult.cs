@@ -2,7 +2,7 @@
 
 internal enum HttpResponseResult
 {
-    Fail,
-    Success,
-    StopException
+	Fail,
+	Success,
+	StopException
 }

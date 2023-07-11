@@ -2,7 +2,7 @@
 
 public enum DownloadStrategyFileName
 {
-    PathGet,
-    Random,
-    Specify
+	PathGet,
+	Random,
+	Specify
 }

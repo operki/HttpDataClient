@@ -2,7 +2,7 @@
 
 internal enum DownloadMetrics
 {
-    UrlBadRequests,
-    UrlGoodRequests,
-    UrlTotalRequests
+	UrlBadRequests,
+	UrlGoodRequests,
+	UrlTotalRequests
 }
