@@ -10,7 +10,7 @@ public class DataResult
         ResponseMessage = responseMessage;
     }
 
-    private HttpResponseMessage? ResponseMessage { get; }
+    public HttpResponseMessage? ResponseMessage { get; }
     public bool IsSuccess => ResponseMessage?.IsSuccessStatusCode ?? false;
 
     public string? Content
