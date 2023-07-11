@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
-using HttpDataClient.Consts;
-using HttpDataClient.Providers;
-using HttpDataClient.Utils;
+using Http.DataClient.Consts;
+using Http.DataClient.Providers;
+using Http.DataClient.Utils;
 
-namespace HttpDataClient.LoadStat;
+namespace Http.DataClient.LoadStat;
 
 internal class LoadStatCalc
 {

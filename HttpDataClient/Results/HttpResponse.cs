@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Results;
+﻿namespace Http.DataClient.Results;
 
 internal struct HttpResponse
 {

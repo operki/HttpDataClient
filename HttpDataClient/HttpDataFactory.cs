@@ -3,20 +3,20 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
-namespace HttpDataClient;
+namespace Http.DataClient;
 
 internal class HttpDataFactory : IHttpClientFactory
 {
 	private readonly Uri? baseUri;
 	public readonly string? BaseUrl;
-	public readonly HttpClient Client;
+	public readonly System.Net.Http.HttpClient Client;
 	public readonly HttpClientHandler ClientHandler;
 	private readonly int downloadTimeout;
-	private readonly Action<HttpClient>? modifyClient;
+	private readonly Action<System.Net.Http.HttpClient>? modifyClient;
 	public readonly Action<ByteArrayContent>? ModifyContent;
 	private readonly bool useDefaultBrowserSettings;
 
-	internal HttpDataFactory(HttpDataLoaderSettings settings)
+	internal HttpDataFactory(HttpDataClientSettings settings)
 	{
 		downloadTimeout = settings.DownloadTimeout;
 		modifyClient = settings.ModifyClient;
@@ -62,9 +62,9 @@ internal class HttpDataFactory : IHttpClientFactory
 		Client = CreateClient(string.Empty);
 	}
 
-	public HttpClient CreateClient(string _)
+	public System.Net.Http.HttpClient CreateClient(string _)
 	{
-		var client = new HttpClient(ClientHandler)
+		var client = new System.Net.Http.HttpClient(ClientHandler)
 		{
 			BaseAddress = baseUri,
 			Timeout = TimeSpan.FromMilliseconds(downloadTimeout)

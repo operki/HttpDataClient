@@ -1,6 +1,6 @@
 ﻿using System.Web;
 
-namespace HttpDataClient.Utils;
+namespace Http.DataClient.Utils;
 
 internal static class UrlUtils
 {

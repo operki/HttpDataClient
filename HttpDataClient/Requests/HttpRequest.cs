@@ -1,7 +1,7 @@
-﻿using HttpDataClient.LoadStat;
-using HttpDataClient.Providers;
+﻿using Http.DataClient.LoadStat;
+using Http.DataClient.Providers;
 
-namespace HttpDataClient.Requests;
+namespace Http.DataClient.Requests;
 
 internal struct HttpRequest
 {
@@ -17,7 +17,7 @@ internal struct HttpRequest
 	public int RetriesCount { get; }
 	public Func<Exception, bool>? StopDownload { get; } = exception => exception.ToString().Contains("416");
 
-	public HttpRequest(HttpDataLoaderSettings settings, LoadStatCalc? loadStatCalc, string? traceId, string url, HttpDataFactory? httpDataFactory = null)
+	public HttpRequest(HttpDataClientSettings settings, LoadStatCalc? loadStatCalc, string? traceId, string url, HttpDataFactory? httpDataFactory = null)
 	{
 		LogProvider = settings.LogProvider;
 		MetricProvider = settings.MetricProvider;

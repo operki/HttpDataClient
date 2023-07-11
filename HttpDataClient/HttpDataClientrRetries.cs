@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
-using HttpDataClient.Consts;
-using HttpDataClient.Requests;
-using HttpDataClient.Results;
-using HttpDataClient.Utils;
+using Http.DataClient.Consts;
+using Http.DataClient.Requests;
+using Http.DataClient.Results;
+using Http.DataClient.Utils;
 
-namespace HttpDataClient;
+namespace Http.DataClient;
 
-internal static class HttpDataLoaderRetries
+internal static class HttpDataClientrRetries
 {
 	public static async Task<HttpResponse> GetAsync(HttpRequest httpRequest, Func<Task<HttpResponseMessage>> httpGetter)
 	{

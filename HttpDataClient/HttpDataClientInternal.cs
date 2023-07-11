@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
-using HttpDataClient.Consts;
-using HttpDataClient.Requests;
-using HttpDataClient.Results;
-using HttpDataClient.Utils;
+using Http.DataClient.Consts;
+using Http.DataClient.Requests;
+using Http.DataClient.Results;
+using Http.DataClient.Utils;
 
-namespace HttpDataClient;
+namespace Http.DataClient;
 
-internal static class HttpDataLoaderInternal
+internal static class HttpDataClientInternal
 {
 	public static async Task<DataResult> GetAsync(HttpRequest httpRequest)
 	{
@@ -17,7 +17,7 @@ internal static class HttpDataLoaderInternal
 		var url = httpRequest.Url;
 		var hideSecrets = httpRequest.HideSecretsFromUrls;
 
-		var httpResponse = await HttpDataLoaderRetries.GetAsync(httpRequest, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead));
+		var httpResponse = await HttpDataClientrRetries.GetAsync(httpRequest, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead));
 		var responseResult = httpResponse.Result;
 		var responseMessage = httpResponse.Message;
 
@@ -47,7 +47,7 @@ internal static class HttpDataLoaderInternal
 		var url = httpRequest.Url;
 		var hideSecrets = httpRequest.HideSecretsFromUrls;
 
-		var httpResponse = await HttpDataLoaderRetries.GetAsync(httpRequest, () =>
+		var httpResponse = await HttpDataClientrRetries.GetAsync(httpRequest, () =>
 		{
 			var httpContent = new ByteArrayContent(body);
 			httpDataFactory.ModifyContent?.Invoke(httpContent);
@@ -97,7 +97,7 @@ internal static class HttpDataLoaderInternal
 				logProvider?.Info($"{tracePrefix}Already downloaded {totalSize} bytes from '{url.HideSecrets(hideSecrets)}'. Continue download...");
 			}
 
-			var httpResponse = await HttpDataLoaderRetries.GetAsync(httpRequest, () =>
+			var httpResponse = await HttpDataClientrRetries.GetAsync(httpRequest, () =>
 			{
 				try
 				{

@@ -1,15 +1,15 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using HttpDataClient.Consts;
-using HttpDataClient.Providers;
+using Http.DataClient.Consts;
+using Http.DataClient.Providers;
 
-namespace HttpDataClient;
+namespace Http.DataClient;
 
 /// <summary>
-///     Settings for HttpClientFactory and HttpDataLoader
+///     Settings for HttpClientFactory and HttpDataClient
 /// </summary>
-public class HttpDataLoaderSettings
+public class HttpDataClientSettings
 {
 	/// <summary>
 	///     Provider for writing logs
@@ -88,7 +88,7 @@ public class HttpDataLoaderSettings
 	/// <summary>
 	///     Modification for HttpClient, using one time with initialize HttpClientFactory
 	/// </summary>
-	public Action<HttpClient>? ModifyClient { get; set; } = null;
+	public Action<System.Net.Http.HttpClient>? ModifyClient { get; set; } = null;
 
 	/// <summary>
 	///     Modification for HttpClient, using one time for every post request. In example, you can specify ContentType like this:

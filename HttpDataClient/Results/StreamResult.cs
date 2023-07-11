@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Results;
+﻿namespace Http.DataClient.Results;
 
 public class HttpStreamResult : IDisposable
 {

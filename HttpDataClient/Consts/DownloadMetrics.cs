@@ -1,4 +1,4 @@
-﻿namespace HttpDataClient.Consts;
+﻿namespace Http.DataClient.Consts;
 
 internal enum DownloadMetrics
 {

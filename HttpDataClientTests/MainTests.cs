@@ -1,5 +1,5 @@
 using FluentAssertions;
-using HttpDataClient;
+using Http.DataClient;
 using NUnit.Framework;
 
 namespace HttpDataClientTests;
@@ -10,7 +10,7 @@ public class Tests
 	[SetUp]
 	public void Setup()
 	{
-		httpDataLoader = new HttpDataLoader(new HttpDataLoaderSettings
+		httpDataLoader = new HttpDataClient(new HttpDataClientSettings
 		{
 			BaseUrl = "https://www.google.com"
 		});
@@ -20,14 +20,14 @@ public class Tests
 	[Test]
 	public void TestForJustGet()
 	{
-		var downloadResult = HttpDataLoader.JustGet("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png");
+		var downloadResult = HttpDataClient.JustGet("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png");
 		downloadResult.Data.Should().Equal(testPicture);
 	}
 
 	[Test]
 	public void TestForJustGetSuccess()
 	{
-		var downloadResult = HttpDataLoader.JustGetSuccess("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png");
+		var downloadResult = HttpDataClient.JustGetSuccess("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png");
 		downloadResult.Data.Should().Equal(testPicture);
 	}
 
@@ -71,7 +71,7 @@ public class Tests
 	}
 
 #pragma warning disable CS8618
-	private HttpDataLoader httpDataLoader;
+	private HttpDataClient httpDataLoader;
 	private byte[] testPicture;
 #pragma warning restore CS8618
 }
