@@ -2,15 +2,15 @@
 
 internal class GlobalConsts
 {
-	public const string LocalHelperTempDir = "tempDownloads";
-	public const int LocalHelperSkipFilesWhenClear = 20;
+	public const string DownloadTempDir = "tempDownloads";
+	public const int SkipFilesWhenClear = 20;
 
-	public const int HttpDataLoaderSettingsDownloadTimeoutDefault = 1_000 * 60 * 15;
-	public const int HttpDataLoaderSettingsPreLoadTimeoutDefault = 1_000;
-	public const int HttpDataLoaderSettingsRetriesCountDefault = 5;
+	public const int DownloadTimeoutDefault = 1_000 * 60 * 15;
+	public const int PreLoadTimeoutDefault = 1_000;
+	public const int RetriesCountDefault = 5;
 
-	public const int HttpDataLoaderMaxReadLength = 1048576 * 1024;
-	public const int HttpDataLoaderRetriesStopGrowing = 8;
+	public const int MaxReadLength = 1048576 * 1024;
+	public const int RetriesStopGrowing = 8;
 
-	public const int LoadStatCalcMaxCapacity = 100000;
+	public const int LoadStatMaxCapacity = 100000;
 }

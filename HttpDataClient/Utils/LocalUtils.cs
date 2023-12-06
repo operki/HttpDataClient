@@ -9,24 +9,24 @@ internal static class LocalUtils
 
 	public static void CreateTempDir()
 	{
-		Directory.CreateDirectory(GlobalConsts.LocalHelperTempDir);
+		Directory.CreateDirectory(GlobalConsts.DownloadTempDir);
 	}
 
 	public static void TryClearDir(DownloadStrategyFileName? strategyFileName = null)
 	{
 		var skipFiles = strategyFileName is null or DownloadStrategyFileName.Random
 			? null
-			: (int?)GlobalConsts.LocalHelperSkipFilesWhenClear;
+			: (int?)GlobalConsts.SkipFilesWhenClear;
 
 		try
 		{
-			if(!Directory.Exists(GlobalConsts.LocalHelperTempDir))
+			if(!Directory.Exists(GlobalConsts.DownloadTempDir))
 			{
-				Directory.CreateDirectory(GlobalConsts.LocalHelperTempDir);
+				Directory.CreateDirectory(GlobalConsts.DownloadTempDir);
 				return;
 			}
 
-			var dirFiles = Directory.GetFiles(GlobalConsts.LocalHelperTempDir);
+			var dirFiles = Directory.GetFiles(GlobalConsts.DownloadTempDir);
 			if(skipFiles == null)
 				foreach(var file in dirFiles)
 					File.Delete(file);
@@ -39,19 +39,19 @@ internal static class LocalUtils
 		catch(IOException) { }
 		catch(Exception e)
 		{
-			throw new Exception($"Can't clear folder '{GlobalConsts.LocalHelperTempDir}'. Exception: {e}");
+			throw new Exception($"Can't clear folder '{GlobalConsts.DownloadTempDir}'. Exception: {e}");
 		}
 	}
 
 	public static string GetFileName(DownloadStrategyFileName strategyFileName, string url, string? fileName)
 	{
 		if(fileName.IsSignificant())
-			return Path.Combine(GlobalConsts.LocalHelperTempDir, GetSafeFileName(fileName!));
+			return Path.Combine(GlobalConsts.DownloadTempDir, GetSafeFileName(fileName!));
 
 		return strategyFileName switch
 		{
-			DownloadStrategyFileName.PathGet => Path.Combine(GlobalConsts.LocalHelperTempDir, GetSafeFileName(url)),
-			DownloadStrategyFileName.Random => Path.Combine(GlobalConsts.LocalHelperTempDir, Guid.NewGuid().ToString()),
+			DownloadStrategyFileName.PathGet => Path.Combine(GlobalConsts.DownloadTempDir, GetSafeFileName(url)),
+			DownloadStrategyFileName.Random => Path.Combine(GlobalConsts.DownloadTempDir, Guid.NewGuid().ToString()),
 			DownloadStrategyFileName.Specify => throw new Exception("FileName must be significant or use other download strategy"),
 			_ => throw new ArgumentOutOfRangeException(nameof(strategyFileName), strategyFileName, null)
 		};

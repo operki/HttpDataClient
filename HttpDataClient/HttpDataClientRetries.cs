@@ -6,7 +6,7 @@ using DataTools.Utils;
 
 namespace DataTools;
 
-internal static class HttpDataClientrRetries
+internal static class HttpDataClientRetries
 {
 	public static async Task<HttpResponse> GetAsync(HttpRequest httpRequest, Func<Task<HttpResponseMessage>> httpGetter)
 	{
@@ -74,7 +74,7 @@ internal static class HttpDataClientrRetries
 						}
 						else
 						{
-							sleepTime = preLoadTimeout * ((i > GlobalConsts.HttpDataLoaderRetriesStopGrowing ? GlobalConsts.HttpDataLoaderRetriesStopGrowing : i) + 2);
+							sleepTime = preLoadTimeout * ((i > GlobalConsts.RetriesStopGrowing ? GlobalConsts.RetriesStopGrowing : i) + 2);
 							logProvider?.Error($"{tracePrefix}Failed '{url.HideSecrets(hideSecrets)}': elapsed {sw.Elapsed}, try again after {sleepTime} milliseconds", exception);
 						}
 					}

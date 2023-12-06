@@ -174,7 +174,7 @@ public class HttpDataClient
 	/// <param name="fileName">Name of download file, if null will be sets depends on settings.StrategyFileName</param>
 	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
 	/// <returns>Download stream result</returns>
-	public HttpStreamResult GetStreamSuccess(string url, string? fileName = null, string? traceId = null)
+	public StreamResult GetStreamSuccess(string url, string? fileName = null, string? traceId = null)
 	{
 		var result = GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
 		if(!result.IsSuccess)
@@ -190,7 +190,7 @@ public class HttpDataClient
 	/// <param name="fileName">Name of download file, if null will be sets depends on settings.StrategyFileName</param>
 	/// <param name="traceId">Prefix for logs, will be added automatic if is null</param>
 	/// <returns>Download stream result</returns>
-	public HttpStreamResult GetStream(string url, string? fileName = null, string? traceId = null)
+	public StreamResult GetStream(string url, string? fileName = null, string? traceId = null)
 	{
 		return GetStreamAsync(url, fileName, traceId).ConfigureAwait(false).GetAwaiter().GetResult();
 	}
@@ -204,7 +204,7 @@ public class HttpDataClient
 		JsonSerializer.Serialize(outStream, httpDataFactory.ClientHandler.CookieContainer);
 	}
 
-	private async Task<HttpStreamResult> GetStreamAsync(string url, string? fileName = null, string? traceId = null)
+	private async Task<StreamResult> GetStreamAsync(string url, string? fileName = null, string? traceId = null)
 	{
 		return await HttpDataClientInternal.GetStreamAsync(new HttpRequest(settings, loadStatCalc, traceId, url, httpDataFactory), strategyFileName, fileName);
 	}

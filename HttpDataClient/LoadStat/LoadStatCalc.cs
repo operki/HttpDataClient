@@ -40,10 +40,10 @@ internal class LoadStatCalc
 			log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: max {mostLoad.GetStat()}");
 			var averageLoad = LoadStatMinutes.Values.Sum(range => range.Count) / LoadStatMinutes.Count;
 			log.Info($"[HttpDataClient.LoadStats.{id}] Site {siteHost}: average requests per minutes is {averageLoad}");
-			if(LoadStatMinutes.Count > GlobalConsts.LoadStatCalcMaxCapacity)
+			if(LoadStatMinutes.Count > GlobalConsts.LoadStatMaxCapacity)
 				LoadStatMinutes = new ConcurrentDictionary<string, LoadStatRange>(LoadStatMinutes
 					.OrderBy(kvp => kvp)
-					.Skip(GlobalConsts.LoadStatCalcMaxCapacity / 2));
+					.Skip(GlobalConsts.LoadStatMaxCapacity / 2));
 
 			if(currentDt < startDt.AddHours(1))
 				return;

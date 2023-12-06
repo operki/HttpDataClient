@@ -27,7 +27,7 @@ public class HttpDataClientSettings
 	public string? BaseUrl { get; set; }
 
 	/// <summary>
-	///     Strategy of naming file for downloads with methods returns HttpStreamResult
+	///     Strategy of naming file for downloads with methods returns StreamResult
 	///     PathGet - file will be named used Path.GetFileName(url), can download same file then connection lost
 	///     Random - file will be named randomly, can avoid errors with parallel downloading, like: '01.01.2020\data.xml' and '05.06.2021\data.xml'
 	///     Specify - require name of file for every request
@@ -52,7 +52,7 @@ public class HttpDataClientSettings
 	/// <summary>
 	///     Timeout for one internal request
 	/// </summary>
-	public int DownloadTimeout { get; set; } = GlobalConsts.HttpDataLoaderSettingsDownloadTimeoutDefault;
+	public int DownloadTimeout { get; set; } = GlobalConsts.DownloadTimeoutDefault;
 
 	/// <summary>
 	///     true - use standard settings for HttpClient, imitate chrome web browser
@@ -104,10 +104,10 @@ public class HttpDataClientSettings
 	/// <summary>
 	///     Timeout before send request, can limit traffic to source host, can be changed after initialize
 	/// </summary>
-	public int PreLoadTimeout { get; set; } = GlobalConsts.HttpDataLoaderSettingsPreLoadTimeoutDefault;
+	public int PreLoadTimeout { get; set; } = GlobalConsts.PreLoadTimeoutDefault;
 
 	/// <summary>
 	///     Retries count before request returns error, can be changed after initialize
 	/// </summary>
-	public int RetriesCount { get; set; } = GlobalConsts.HttpDataLoaderSettingsRetriesCountDefault;
+	public int RetriesCount { get; set; } = GlobalConsts.RetriesCountDefault;
 }

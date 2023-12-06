@@ -1,8 +1,8 @@
 ﻿namespace DataTools.Results;
 
-public class HttpStreamResult : IDisposable
+public class StreamResult : IDisposable
 {
-	public HttpStreamResult(string filePath, HttpResponseMessage? responseMessage, bool isSuccess)
+	public StreamResult(string filePath, HttpResponseMessage? responseMessage, bool isSuccess)
 	{
 		Stream = File.OpenRead(filePath);
 		FileInfo = new FileInfo(filePath);
@@ -10,7 +10,7 @@ public class HttpStreamResult : IDisposable
 		IsSuccess = isSuccess;
 	}
 
-	public HttpStreamResult(string filePath, HttpResponseMessage? responseMessage)
+	public StreamResult(string filePath, HttpResponseMessage? responseMessage)
 	{
 		Stream = File.OpenRead(filePath);
 		FileInfo = new FileInfo(filePath);
@@ -18,7 +18,7 @@ public class HttpStreamResult : IDisposable
 		IsSuccess = ResponseMessage?.IsSuccessStatusCode ?? false;
 	}
 
-	public HttpStreamResult(HttpResponseMessage? responseMessage)
+	public StreamResult(HttpResponseMessage? responseMessage)
 	{
 		ResponseMessage = responseMessage;
 		IsSuccess = false;

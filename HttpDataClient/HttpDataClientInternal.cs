@@ -17,7 +17,7 @@ internal static class HttpDataClientInternal
 		var url = httpRequest.Url;
 		var hideSecrets = httpRequest.HideSecretsFromUrls;
 
-		var httpResponse = await HttpDataClientrRetries.GetAsync(httpRequest, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead));
+		var httpResponse = await HttpDataClientRetries.GetAsync(httpRequest, () => httpDataFactory.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead));
 		var responseResult = httpResponse.Result;
 		var responseMessage = httpResponse.Message;
 
@@ -47,7 +47,7 @@ internal static class HttpDataClientInternal
 		var url = httpRequest.Url;
 		var hideSecrets = httpRequest.HideSecretsFromUrls;
 
-		var httpResponse = await HttpDataClientrRetries.GetAsync(httpRequest, () =>
+		var httpResponse = await HttpDataClientRetries.GetAsync(httpRequest, () =>
 		{
 			var httpContent = new ByteArrayContent(body);
 			httpDataFactory.ModifyContent?.Invoke(httpContent);
@@ -74,7 +74,7 @@ internal static class HttpDataClientInternal
 		return result;
 	}
 
-	public static async Task<HttpStreamResult> GetStreamAsync(HttpRequest httpRequest, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string? fileName = null)
+	public static async Task<StreamResult> GetStreamAsync(HttpRequest httpRequest, DownloadStrategyFileName strategyFileName = DownloadStrategyFileName.PathGet, string? fileName = null)
 	{
 		var logProvider = httpRequest.LogProvider;
 		var httpDataFactory = httpRequest.HttpDataFactory;
@@ -97,14 +97,14 @@ internal static class HttpDataClientInternal
 				logProvider?.Info($"{tracePrefix}Already downloaded {totalSize} bytes from '{url.HideSecrets(hideSecrets)}'. Continue download...");
 			}
 
-			var httpResponse = await HttpDataClientrRetries.GetAsync(httpRequest, () =>
+			var httpResponse = await HttpDataClientRetries.GetAsync(httpRequest, () =>
 			{
 				try
 				{
 					var currentRequest = new HttpRequestMessage(HttpMethod.Get, url);
 					currentRequest.Headers.Range = resumeDownload
-						? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + GlobalConsts.HttpDataLoaderMaxReadLength)
-						: new RangeHeaderValue(0, GlobalConsts.HttpDataLoaderMaxReadLength);
+						? new RangeHeaderValue(new FileInfo(tmpFileName).Length, new FileInfo(tmpFileName).Length + GlobalConsts.MaxReadLength)
+						: new RangeHeaderValue(0, GlobalConsts.MaxReadLength);
 
 					return httpDataFactory.Client.SendAsync(currentRequest);
 				}
@@ -121,10 +121,10 @@ internal static class HttpDataClientInternal
 			{
 				case HttpResponseResult.StopException:
 					return totalSize == 0
-						? new HttpStreamResult(responseMessage)
-						: new HttpStreamResult(tmpFileName, responseMessage, true);
+						? new StreamResult(responseMessage)
+						: new StreamResult(tmpFileName, responseMessage, true);
 				case HttpResponseResult.Fail:
-					return new HttpStreamResult(responseMessage);
+					return new StreamResult(responseMessage);
 				case HttpResponseResult.Success:
 					break;
 				default:
@@ -136,7 +136,7 @@ internal static class HttpDataClientInternal
 			{
 				using(var fileWriteStream = File.Open(tmpFileName, FileMode.Append))
 				{
-					var data = new byte[GlobalConsts.HttpDataLoaderMaxReadLength];
+					var data = new byte[GlobalConsts.MaxReadLength];
 					var dataLength = await httpReadStream.Result.ReadAsync(data, 0, data.Length);
 					fileWriteStream.Write(data, 0, dataLength);
 					totalSize += dataLength;
@@ -148,7 +148,7 @@ internal static class HttpDataClientInternal
 				continue;
 
 			var elapsed = sw.Elapsed;
-			var result = new HttpStreamResult(tmpFileName, responseMessage);
+			var result = new StreamResult(tmpFileName, responseMessage);
 			var downloadRate = (decimal)(result.Length / (elapsed.TotalSeconds + 0.0001) / 1000000);
 			logProvider?.Info(result.ResponseMessage == null
 				? $"{tracePrefix}Downloaded '{url.HideSecrets(hideSecrets)}' Undefined error: result length {result.Length}, elapsed {elapsed}, rate {downloadRate::0.00 MB/s}"
