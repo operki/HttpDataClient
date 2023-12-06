@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Http.DataClient.Utils;
+namespace DataTools.Utils;
 
 internal static class IdUtils
 {

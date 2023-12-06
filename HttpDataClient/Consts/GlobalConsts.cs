@@ -1,4 +1,4 @@
-﻿namespace Http.DataClient.Consts;
+﻿namespace DataTools.Consts;
 
 internal class GlobalConsts
 {

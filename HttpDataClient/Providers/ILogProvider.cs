@@ -1,4 +1,4 @@
-﻿namespace Http.DataClient.Providers;
+﻿namespace DataTools.Providers;
 
 public interface ILogProvider
 {

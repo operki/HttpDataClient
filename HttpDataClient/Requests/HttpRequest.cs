@@ -1,7 +1,7 @@
-﻿using Http.DataClient.LoadStat;
-using Http.DataClient.Providers;
+﻿using DataTools.LoadStat;
+using DataTools.Providers;
 
-namespace Http.DataClient.Requests;
+namespace DataTools.Requests;
 
 internal struct HttpRequest
 {

@@ -1,12 +1,12 @@
 ﻿using System.Net;
 using System.Text.Json;
-using Http.DataClient.Consts;
-using Http.DataClient.LoadStat;
-using Http.DataClient.Requests;
-using Http.DataClient.Results;
-using Http.DataClient.Utils;
+using DataTools.Consts;
+using DataTools.LoadStat;
+using DataTools.Requests;
+using DataTools.Results;
+using DataTools.Utils;
 
-namespace Http.DataClient;
+namespace DataTools;
 
 /// <summary>
 ///     Http data loader, works with get and post requests

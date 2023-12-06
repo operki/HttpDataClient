@@ -1,6 +1,6 @@
-﻿using Http.DataClient.Utils;
+﻿using DataTools.Utils;
 
-namespace Http.DataClient.LoadStat;
+namespace DataTools.LoadStat;
 
 internal class LoadStatRange
 {

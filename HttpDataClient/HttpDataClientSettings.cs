@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using Http.DataClient.Consts;
-using Http.DataClient.Providers;
+using DataTools.Consts;
+using DataTools.Providers;
 
-namespace Http.DataClient;
+namespace DataTools;
 
 /// <summary>
 ///     Settings for HttpClientFactory and HttpDataClient

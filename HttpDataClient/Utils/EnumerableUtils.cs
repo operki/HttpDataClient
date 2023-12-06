@@ -1,4 +1,4 @@
-﻿namespace Http.DataClient.Utils;
+﻿namespace DataTools.Utils;
 
 internal static class EnumerableUtils
 {

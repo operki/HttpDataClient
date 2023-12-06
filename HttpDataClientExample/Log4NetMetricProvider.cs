@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Http.DataClient.Providers;
+using DataTools.Providers;
 using log4net;
 
 namespace HttpDataClientExample;

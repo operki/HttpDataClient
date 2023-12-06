@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
-using Http.DataClient.Consts;
-using Http.DataClient.Requests;
-using Http.DataClient.Results;
-using Http.DataClient.Utils;
+using DataTools.Consts;
+using DataTools.Requests;
+using DataTools.Results;
+using DataTools.Utils;
 
-namespace Http.DataClient;
+namespace DataTools;
 
 internal static class HttpDataClientInternal
 {

@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using Http.DataClient.Consts;
+using DataTools.Consts;
 
-namespace Http.DataClient.Utils;
+namespace DataTools.Utils;
 
 internal static class LocalUtils
 {

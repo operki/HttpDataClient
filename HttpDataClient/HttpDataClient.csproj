@@ -9,9 +9,9 @@
 		<Description>Comfortable client for HttpClient. Example of use: https://github.com/operki/HttpDataClient/tree/master/HttpDataClientExample file Program.cs. You can copy Log4NetProvider.cs and Log4NetMetricProvider.cs to your project and use it with this package</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RootNamespace>Http.DataClient</RootNamespace>
+		<RootNamespace>DataTools</RootNamespace>
 		<LangVersion>default</LangVersion>
-		<Version>1.0.8</Version>
+		<Version>1.0.10</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

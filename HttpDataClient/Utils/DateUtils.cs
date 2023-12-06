@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Http.DataClient.Utils;
+namespace DataTools.Utils;
 
 internal static class DateUtils
 {

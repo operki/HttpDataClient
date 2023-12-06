@@ -3,7 +3,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
-namespace Http.DataClient;
+namespace DataTools;
 
 internal class HttpDataFactory : IHttpClientFactory
 {
